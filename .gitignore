@@ -38,6 +38,3 @@ dist
 build
 biosyn.egg-info
 
-# figure
-*.pdf
-*.svg
