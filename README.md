@@ -8,7 +8,7 @@
     <p><b>Bio</b>medical entity representations with <b>Syn</b>onym marginalization
 </div>
 
-<img alt="BioSyn Overview" src="https://github.com/mjeensung/biosyn/blob/master/images/biosyn_overview.svg">
+<img alt="BioSyn Overview" src="https://github.com/dmis-lab/biosyn/blob/master/images/biosyn_overview.svg">
 
 ## Requirements
 
