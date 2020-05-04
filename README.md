@@ -8,7 +8,9 @@
     <p><b>Bio</b>medical entity representations with <b>Syn</b>onym marginalization
 </div>
 
-<img alt="BioSyn Overview" src="https://github.com/dmis-lab/biosyn/blob/master/images/biosyn_overview.svg">
+<img alt="BioSyn Overview" src="https://github.com/dmis-lab/biosyn/blob/master/images/biosyn_overview.png">
+
+We present 'BioSyn' for learning and normalizing entity representations in the biomedical domain, built upon two main components: 1) synonym marginalization and 2) iterative candidate retrieval.
 
 ## Requirements
 
@@ -23,7 +25,6 @@ $ conda install tqdm
 $ conda install nltk
 $ conda install scikit-learn
 $ pip install transformers
-
 ```
 
 ## Resources
@@ -47,6 +48,9 @@ Note that we use development (dev) set to search the hyperparameters, and train 
 ('TAC2017ADR' dataset cannot be shared because of the license issue. Please visit the [website](https://bionlp.nlm.nih.gov/tac2017adversereactions/).)
 
 ## Train
+
+The following example is fine-tuning our model with NCBI-Disease dataset (train+dev) on BioBERTv1.1. 
+
 ```
 MODEL=biosyn-ncbi-disease
 BIOBERT_DIR=./pretrained/pt_biobert1.1
@@ -68,7 +72,12 @@ python ./train.py \
     --dense_ratio 0.5
 ```
 
+Note that you can train the model on 'processed_train' and evaluate it on 'processed_dev' when you want to search for the hyperparameters. (the argument '--save_checkpoint_all' can be helpful. )
+
 ## Evaluation
+
+The following example is evaluating our trained model with NCBI-Disease dataset (test). 
+
 ```
 MODEL=biosyn-ncbi-disease
 MODEL_DIR=./tmp/${MODEL}
@@ -89,6 +98,7 @@ python eval.py \
 ### Result
 
 The predictions are saved in 'predictions_eval.json' with mentions, candidates and accuracies. (the argument '--save_predictions' has to be on)
+Following is an example.
 
 ```
 {
@@ -132,4 +142,14 @@ The predictions are saved in 'predictions_eval.json' with mentions, candidates a
 ```
 
 ## Citations
-TBU
+
+```
+@misc{sung2020biomedical,
+    title={Biomedical Entity Representations with Synonym Marginalization},
+    author={Mujeen Sung and Hwisang Jeon and Jinhyuk Lee and Jaewoo Kang},
+    year={2020},
+    eprint={2005.00239},
+    archivePrefix={arXiv},
+    primaryClass={cs.CL}
+}
+```

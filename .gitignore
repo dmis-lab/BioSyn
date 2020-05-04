@@ -23,7 +23,10 @@ datasets/meddra
 
 processed_train
 processed_dev
+processed_traindev
 processed_test
+
+*.tar.gz
 
 # result
 error_analysis.json
@@ -37,4 +40,3 @@ runs/
 dist
 build
 biosyn.egg-info
-
