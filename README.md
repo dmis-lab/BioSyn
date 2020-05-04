@@ -7,8 +7,11 @@
 <div align="center">
     <p><b>Bio</b>medical entity representations with <b>Syn</b>onym marginalization
 </div>
-
-<img alt="BioSyn Overview" src="https://github.com/dmis-lab/biosyn/blob/master/images/biosyn_overview.png" style="width: 50%; height: 50%">
+<!-- 
+<img alt="BioSyn Overview" src="https://github.com/dmis-lab/biosyn/blob/master/images/biosyn_overview.png" style="width:50%;" align="center"> -->
+<div align="center">
+  <img alt="BioSyn Overview" src="https://github.com/dmis-lab/biosyn/blob/master/images/biosyn_overview.png" style="width:70%;" align="center">
+</div>
 
 We present 'BioSyn' for learning and normalizing entity representations in the biomedical domain, built upon two main components: 1) synonym marginalization and 2) iterative candidate retrieval.
 
