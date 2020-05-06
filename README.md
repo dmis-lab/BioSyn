@@ -15,9 +15,6 @@
 We present BioSyn for learning biomedical entity representations. You can train BioSyn with the two main components described in our [paper](https://arxiv.org/abs/2005.00239): 1) synonym marginalization and 2) iterative candidate retrieval. Once you train BioSyn, you can easily normalize any biomedical mentions or represent them into entity embeddings.
 
 ## Requirements
-
-Note: Pytorch has to be installed depending on the version of CUDA.
-
 ```
 $ conda create -n BioSyn python=3.6
 $ conda activate BioSyn
@@ -25,6 +22,7 @@ $ conda install numpy tqdm nltk scikit-learn
 $ conda install pytorch=1.1.0 cudatoolkit=9.0 -c pytorch
 $ pip install transformers
 ```
+Note that Pytorch has to be installed depending on the version of CUDA.
 
 ## Resources
 
@@ -43,7 +41,7 @@ Note that we use development (dev) set to search the hyperparameters, and train 
 - [bc5cdr-disease](https://drive.google.com/open?id=1nvNYdfGrlZjya4RlhRu-IQJjRJzQcpyr)
 - [bc5cdr-chemical](https://drive.google.com/open?id=1nsWIWmds5p7UZIeqrKVnhNTaBQAbqVYk)
 
-(`TAC2017ADR` dataset cannot be shared because of the license issue. Please visit the [website](https://bionlp.nlm.nih.gov/tac2017adversereactions/).)
+`TAC2017ADR` dataset cannot be shared because of the license issue. Please visit the [website](https://bionlp.nlm.nih.gov/tac2017adversereactions/).
 
 ## Train
 
