@@ -140,7 +140,7 @@ Following is an example.
 ```
 
 ## Inference
-We provide a simple script that can normalize a biomedical mention or represent the mention into an embedding vector with BioSyn. If you do not have pre-trained BioSyn, please download [BioSyn pre-trained on NCBI-Disease](https://drive.google.com/drive/folders/1oOkY1Vtn508i0Q542IcJKFVm_d40Xj1I?usp=sharing)).
+We provide a simple script that can normalize a biomedical mention or represent the mention into an embedding vector with BioSyn. If you do not have pre-trained BioSyn, please download [BioSyn pre-trained on NCBI-Disease](https://drive.google.com/drive/folders/1oOkY1Vtn508i0Q542IcJKFVm_d40Xj1I?usp=sharing).
 
 ### Predictions (Top 5)
 
