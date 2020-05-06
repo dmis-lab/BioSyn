@@ -144,7 +144,7 @@ We provide a simple script that can normalize a biomedical mention or represent 
 
 ### Predictions (Top 5)
 
-The example below gives the top 5 predictions for a mention `ataxia telangiectasia`. Note that the initial run will take some time to embed the whole dictionary. You can download the dictionary file from [datasets](###Datasets).
+The example below gives the top 5 predictions for a mention `ataxia telangiectasia`. Note that the initial run will take some time to embed the whole dictionary. You can download the dictionary file [here](https://github.com/dmis-lab/BioSyn#datasets).
 
 ```
 MODEL=biosyn-ncbi-disease
