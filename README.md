@@ -139,38 +139,12 @@ Following is an example.
 }
 ```
 
-## Demo
-
-The demos show normalizing a biomedical mention or representing it into entity embeddings (dense and sparse) using BioSyn. For saving your time, I upload the trained model ([biosyn-ncbi-disease](https://drive.google.com/drive/folders/1oOkY1Vtn508i0Q542IcJKFVm_d40Xj1I?usp=sharing)).
-
-### Embeddings
-
-This demo shows the entity embedding result of a given mention `ataxia telangiectasia`.
-
-```
-MODEL=biosyn-ncbi-disease
-MODEL_DIR=./tmp/${MODEL}
-DATA_DIR=./datasets/ncbi-disease
-
-python demo.py \
-    --model_dir ${MODEL_DIR} \
-    --use_cuda \
-    --mention 'ataxia telangiectasia' \
-    --show_embeddings
-```
-
-#### Result
-```
-{
-  'mention': 'ataxia telangiectasia', 
-  'mention_sparse_embeds': array([0.05979538, 0., ..., 0., 0.], dtype=float32), 
-  'mention_dense_embeds': array([-7.14258850e-02, ..., -4.03847933e-01,],dtype=float32)
-}
-```
+## Inference
+We provide a simple script that can normalize a biomedical mention or represent the mention into an embedding vector with BioSyn. If you do not have pre-trained BioSyn, please download [BioSyn pre-trained on NCBI-Disease](https://drive.google.com/drive/folders/1oOkY1Vtn508i0Q542IcJKFVm_d40Xj1I?usp=sharing)).
 
 ### Predictions (Top 5)
 
-This demo shows the top 5 predictions given a mention `ataxia telangiectasia`. Not that the first run will take long to embedding the whole dictionary. You can download dictionary file from [datasets](###Datasets).
+The example below gives the top 5 predictions for a mention `ataxia telangiectasia`. Note that the initial run will take some time to embed the whole dictionary. You can download the dictionary file from [datasets](###Datasets).
 
 ```
 MODEL=biosyn-ncbi-disease
@@ -198,6 +172,32 @@ python demo.py \
   ]
 }
 ```
+
+### Embeddings
+The example below gives an embedding of a mention `ataxia telangiectasia`.
+
+```
+MODEL=biosyn-ncbi-disease
+MODEL_DIR=./tmp/${MODEL}
+DATA_DIR=./datasets/ncbi-disease
+
+python demo.py \
+    --model_dir ${MODEL_DIR} \
+    --use_cuda \
+    --mention 'ataxia telangiectasia' \
+    --show_embeddings
+```
+
+#### Result
+```
+{
+  'mention': 'ataxia telangiectasia', 
+  'mention_sparse_embeds': array([0.05979538, 0., ..., 0., 0.], dtype=float32), 
+  'mention_dense_embeds': array([-7.14258850e-02, ..., -4.03847933e-01,],dtype=float32)
+}
+```
+
+
 
 ## Citations
 ```
