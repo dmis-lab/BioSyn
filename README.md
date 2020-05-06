@@ -143,7 +143,7 @@ Following is an example.
 ```
 @inproceedings{sung2020biomedical,
     title={Biomedical Entity Representations with Synonym Marginalization},
-    author={Mujeen Sung and Hwisang Jeon and Jinhyuk Lee and Jaewoo Kang},
+    author={Sung, Mujeen and Jeon, Hwisang and Lee, Jinhyuk and Kang, Jaewoo},
     booktitle={ACL},
     year={2020},
 }
