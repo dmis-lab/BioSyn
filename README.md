@@ -141,7 +141,7 @@ Following is an example.
 
 ## Demo
 
-The demos show normalizing a biomedical mention or representing it into entity embeddings (dense and sparse) using BioSyn.
+The demos show normalizing a biomedical mention or representing it into entity embeddings (dense and sparse) using BioSyn. For saving your time, I upload the trained model ([biosyn-ncbi-disease](https://drive.google.com/drive/folders/1oOkY1Vtn508i0Q542IcJKFVm_d40Xj1I?usp=sharing)).
 
 ### Embeddings
 
@@ -170,7 +170,7 @@ python demo.py \
 
 ### Predictions (Top 5)
 
-This demo shows the top 5 predictions given a mention `ataxia telangiectasia`. Not that the first run will take long to embedding the whole dictionary.
+This demo shows the top 5 predictions given a mention `ataxia telangiectasia`. Not that the first run will take long to embedding the whole dictionary. You can download dictionary file from [datasets](###Datasets).
 
 ```
 MODEL=biosyn-ncbi-disease
