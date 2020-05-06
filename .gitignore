@@ -32,6 +32,7 @@ processed_test
 error_analysis.json
 cache/
 output
+tmp
 
 # tensorboard
 runs/

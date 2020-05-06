@@ -139,6 +139,66 @@ Following is an example.
 }
 ```
 
+## Demo
+
+The demos show normalizing a biomedical mention or representing it into entity embeddings (dense and sparse) using BioSyn.
+
+### Embeddings
+
+This demo shows the entity embedding result of a given mention `ataxia telangiectasia`.
+
+```
+MODEL=biosyn-ncbi-disease
+MODEL_DIR=./tmp/${MODEL}
+DATA_DIR=./datasets/ncbi-disease
+
+python demo.py \
+    --model_dir ${MODEL_DIR} \
+    --use_cuda \
+    --mention 'ataxia telangiectasia' \
+    --show_embeddings
+```
+
+#### Result
+```
+{
+  'mention': 'ataxia telangiectasia', 
+  'mention_sparse_embeds': array([0.05979538, 0., ..., 0., 0.], dtype=float32), 
+  'mention_dense_embeds': array([-7.14258850e-02, ..., -4.03847933e-01,],dtype=float32)
+}
+```
+
+### Predictions (Top 5)
+
+This demo shows the top 5 predictions given a mention `ataxia telangiectasia`. Not that the first run will take long to embedding the whole dictionary.
+
+```
+MODEL=biosyn-ncbi-disease
+MODEL_DIR=./tmp/${MODEL}
+DATA_DIR=./datasets/ncbi-disease
+
+python demo.py \
+    --model_dir ${MODEL_DIR} \
+    --dictionary_path ${DATA_DIR}/test_dictionary.txt \
+    --use_cuda \
+    --mention 'ataxia telangiectasia' \
+    --show_predictions
+```
+
+#### Result
+```
+{
+  'mention': 'ataxia telangiectasia', 
+  'predictions': [
+    {'name': 'ataxia telangiectasia', 'id': 'D001260|208900'}, 
+    {'name': 'ataxia telangiectasia syndrome', 'id': 'D001260|208900'}, 
+    {'name': 'ataxia telangiectasia variant', 'id': 'C566865'}, 
+    {'name': 'syndrome ataxia telangiectasia', 'id': 'D001260|208900'}, 
+    {'name': 'telangiectasia', 'id': 'D013684'}
+  ]
+}
+```
+
 ## Citations
 ```
 @inproceedings{sung2020biomedical,
