@@ -5,7 +5,7 @@
 </a>
 </h3>
 <div align="center">
-    <p><b>Bio</b>medical entity representations with <b>Syn</b>onym marginalization
+    <p><b>Bio</b>medical Entity Representations with <b>Syn</b>onym Marginalization
 </div>
 
 <div align="center">
