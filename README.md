@@ -53,7 +53,7 @@ BIOBERT_DIR=./pretrained/pt_biobert1.1
 OUTPUT_DIR=./tmp/${MODEL}
 DATA_DIR=./datasets/ncbi-disease
 
-python ./train.py \
+python train.py \
     --model_dir ${BIOBERT_DIR} \
     --train_dictionary_path ${DATA_DIR}/train_dictionary.txt \
     --train_dir ${DATA_DIR}/processed_traindev \
