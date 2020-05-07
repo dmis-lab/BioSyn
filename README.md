@@ -15,7 +15,7 @@
 We present BioSyn for learning biomedical entity representations. You can train BioSyn with the two main components described in our [paper](https://arxiv.org/abs/2005.00239): 1) synonym marginalization and 2) iterative candidate retrieval. Once you train BioSyn, you can easily normalize any biomedical mentions or represent them into entity embeddings.
 
 ## Requirements
-```
+```bash
 $ conda create -n BioSyn python=3.6
 $ conda activate BioSyn
 $ conda install numpy tqdm nltk scikit-learn
@@ -47,7 +47,7 @@ Note that we use development (dev) set to search the hyperparameters, and train 
 
 The following example fine-tunes our model on NCBI-Disease dataset (train+dev) with BioBERTv1.1. 
 
-```
+```bash
 MODEL=biosyn-ncbi-disease
 BIOBERT_DIR=./pretrained/pt_biobert1.1
 OUTPUT_DIR=./tmp/${MODEL}
@@ -74,7 +74,7 @@ Note that you can train the model on `processed_train` and evaluate it on `proce
 
 The following example evaluates our trained model with NCBI-Disease dataset (test). 
 
-```
+```bash
 MODEL=biosyn-ncbi-disease
 MODEL_DIR=./tmp/${MODEL}
 OUTPUT_DIR=./tmp/${MODEL}
@@ -96,7 +96,7 @@ python eval.py \
 The predictions are saved in `predictions_eval.json` with mentions, candidates and accuracies (the argument `--save_predictions` has to be on).
 Following is an example.
 
-```
+```json
 {
   "queries": [
     {
@@ -146,7 +146,7 @@ We provide a simple script that can normalize a biomedical mention or represent 
 
 The example below gives the top 5 predictions for a mention `ataxia telangiectasia`. Note that the initial run will take some time to embed the whole dictionary. You can download the dictionary file [here](https://github.com/dmis-lab/BioSyn#datasets).
 
-```
+```bash
 MODEL=biosyn-ncbi-disease
 MODEL_DIR=./tmp/${MODEL}
 DATA_DIR=./datasets/ncbi-disease
@@ -155,20 +155,20 @@ python demo.py \
     --model_dir ${MODEL_DIR} \
     --dictionary_path ${DATA_DIR}/test_dictionary.txt \
     --use_cuda \
-    --mention 'ataxia telangiectasia' \
+    --mention "ataxia telangiectasia" \
     --show_predictions
 ```
 
 #### Result
-```
+```json
 {
-  'mention': 'ataxia telangiectasia', 
-  'predictions': [
-    {'name': 'ataxia telangiectasia', 'id': 'D001260|208900'}, 
-    {'name': 'ataxia telangiectasia syndrome', 'id': 'D001260|208900'}, 
-    {'name': 'ataxia telangiectasia variant', 'id': 'C566865'}, 
-    {'name': 'syndrome ataxia telangiectasia', 'id': 'D001260|208900'}, 
-    {'name': 'telangiectasia', 'id': 'D013684'}
+  "mention": "ataxia telangiectasia", 
+  "predictions": [
+    {"name": "ataxia telangiectasia", "id": "D001260|208900"}, 
+    {"name": "ataxia telangiectasia syndrome", "id": "D001260|208900"}, 
+    {"name": "ataxia telangiectasia variant", "id": "C566865"}, 
+    {"name": "syndrome ataxia telangiectasia", "id": "D001260|208900"}, 
+    {"name": "telangiectasia", "id": "D013684"}
   ]
 }
 ```
@@ -176,7 +176,7 @@ python demo.py \
 ### Embeddings
 The example below gives an embedding of a mention `ataxia telangiectasia`.
 
-```
+```bash
 MODEL=biosyn-ncbi-disease
 MODEL_DIR=./tmp/${MODEL}
 DATA_DIR=./datasets/ncbi-disease
@@ -184,16 +184,16 @@ DATA_DIR=./datasets/ncbi-disease
 python demo.py \
     --model_dir ${MODEL_DIR} \
     --use_cuda \
-    --mention 'ataxia telangiectasia' \
+    --mention "ataxia telangiectasia" \
     --show_embeddings
 ```
 
 #### Result
-```
+```json
 {
-  'mention': 'ataxia telangiectasia', 
-  'mention_sparse_embeds': array([0.05979538, 0., ..., 0., 0.], dtype=float32), 
-  'mention_dense_embeds': array([-7.14258850e-02, ..., -4.03847933e-01,],dtype=float32)
+  "mention": "ataxia telangiectasia", 
+  "mention_sparse_embeds": array([0.05979538, 0., ..., 0., 0.], dtype=float32), 
+  "mention_dense_embeds": array([-7.14258850e-02, ..., -4.03847933e-01,],dtype=float32)
 }
 ```
 
