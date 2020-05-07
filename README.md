@@ -200,7 +200,7 @@ python demo.py \
 
 
 ## Citations
-```
+```bibtex
 @inproceedings{sung2020biomedical,
     title={Biomedical Entity Representations with Synonym Marginalization},
     author={Sung, Mujeen and Jeon, Hwisang and Lee, Jinhyuk and Kang, Jaewoo},
