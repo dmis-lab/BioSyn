@@ -96,7 +96,7 @@ python eval.py \
 The predictions are saved in `predictions_eval.json` with mentions, candidates and accuracies (the argument `--save_predictions` has to be on).
 Following is an example.
 
-```json
+```
 {
   "queries": [
     {
@@ -189,7 +189,7 @@ python demo.py \
 ```
 
 #### Result
-```json
+```
 {
   "mention": "ataxia telangiectasia", 
   "mention_sparse_embeds": array([0.05979538, 0., ..., 0., 0.], dtype=float32), 
