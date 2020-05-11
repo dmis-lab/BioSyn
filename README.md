@@ -20,7 +20,7 @@ $ conda create -n BioSyn python=3.6
 $ conda activate BioSyn
 $ conda install numpy tqdm nltk scikit-learn
 $ conda install pytorch=1.1.0 cudatoolkit=9.0 -c pytorch
-$ pip install transformers
+$ pip install transformers==2.0.0
 ```
 Note that Pytorch has to be installed depending on the version of CUDA.
 
