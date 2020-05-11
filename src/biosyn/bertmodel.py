@@ -6,7 +6,9 @@ import torch.nn.functional as F
 from collections import OrderedDict
 from transformers import BertModel as bm
 
+
 class BertModel(nn.Module):
+
     def __init__(self, path, config, use_cuda):
         logging.info("BertModel! use_cuda={}".format(use_cuda))
         super(BertModel, self).__init__()
@@ -15,9 +17,9 @@ class BertModel(nn.Module):
         self.use_cuda = use_cuda
         if self.use_cuda:
             self.model = self.model.cuda()
-            
+
     def load_pretrained(self, path, config):
-        state_dict = torch.load(os.path.join(path,"pytorch_model.bin"))
+        state_dict = torch.load(os.path.join(path, "pytorch_model.bin"))
         new_state_dict = OrderedDict()
         for k, v in state_dict.items():
             if k.startswith('bert.'):

@@ -176,6 +176,7 @@ class WordpieceTokenizer(object):
                 output_tokens.extend(sub_tokens)
         return output_tokens
 
+
 def whitespace_tokenize(text):
     """Runs basic whitespace cleaning and splitting on a piece of text."""
     text = text.strip()
@@ -183,6 +184,7 @@ def whitespace_tokenize(text):
         return []
     tokens = text.split()
     return tokens
+
 
 def _is_control(char):
     """Checks whether `chars` is a control character."""
@@ -195,6 +197,7 @@ def _is_control(char):
         return True
     return False
 
+
 def _is_whitespace(char):
     """Checks whether `chars` is a whitespace character."""
     # \t, \n, and \r are technically contorl characters but we treat them
@@ -205,6 +208,7 @@ def _is_whitespace(char):
     if cat == "Zs":
         return True
     return False
+
 
 def _is_punctuation(char):
     """Checks whether `chars` is a punctuation character."""

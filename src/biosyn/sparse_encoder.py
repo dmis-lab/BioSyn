@@ -5,6 +5,7 @@ import pickle
 import logging
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+
 class SparseEncoder(object):
     def __init__(self, use_cuda=False):
         self.encoder = TfidfVectorizer(analyzer='char', ngram_range=(1, 2))

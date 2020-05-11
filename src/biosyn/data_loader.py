@@ -7,7 +7,9 @@ import logging
 from tqdm import tqdm
 LOGGER = logging.getLogger(__name__)
 
+
 class QueryDataset(Dataset):
+
     def __init__(self, data_dir, 
                 filter_composite=False,
                 filter_duplicate=False
@@ -76,6 +78,7 @@ class QueryDataset(Dataset):
         
         return data
 
+
 class DictionaryDataset():
     """
     A class used to load dictionary data
@@ -107,6 +110,7 @@ class DictionaryDataset():
         
         data = np.array(data)
         return data
+
 
 class CandidateDataset(Dataset):
     """

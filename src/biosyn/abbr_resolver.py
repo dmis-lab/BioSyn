@@ -1,7 +1,9 @@
 import subprocess
 import os
 
+
 class Abbr_resolver():
+
     def __init__(self, ab3p_path):
         self.ab3p_path = ab3p_path
         

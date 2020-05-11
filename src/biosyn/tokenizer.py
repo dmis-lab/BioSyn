@@ -8,8 +8,10 @@ from .bert_utils import (
 
 LOGGER = logging.getLogger(__name__)
 
+
 class Vocabulary(object):
     """Simple vocabulary wrapper."""
+
     def __init__(self):
         self.word2idx = {}
         self.idx2word = {}
@@ -35,8 +37,10 @@ class Vocabulary(object):
 
     def list_vocab(self):
         return list(self.word2idx.keys())
-   
+
+
 class BertTokenizer(object):
+
     def __init__(self,
                 path,
                 max_length=512,
@@ -110,7 +114,7 @@ class BertTokenizer(object):
                 vocab[token] = index
                 index += 1
         return vocab
-        
+
     def save_bert_vocab(self, vocab_path):
         """Save the tokenizer vocabulary to a directory or file."""
         index = 0
@@ -130,6 +134,7 @@ class BertTokenizer(object):
         LOGGER.info("Vocabulary saved in {}".format(vocab_file))
         return (vocab_file,)
 
+
 def test():
     # Test bert tokenizer
     tokenizer = BertTokenizer()
@@ -137,6 +142,7 @@ def test():
     print(words)
     tokens = tokenizer.tokenize(words)
     print(tokens)
+
 
 if __name__ =="__main__":
     from tasks.tokenizer import Vocabulary

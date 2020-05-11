@@ -6,6 +6,7 @@ import logging
 from tqdm import tqdm
 LOGGER = logging.getLogger(__name__)
 
+
 class RerankNet(nn.Module):
     def __init__(self, encoder, learning_rate, weight_decay, sparse_weight, use_cuda):
 
@@ -76,6 +77,7 @@ class RerankNet(nn.Module):
                 embedding_table.append(batch_embedding)
         embedding_table = torch.cat(embedding_table, dim=0)
         return embedding_table
+
 
 def marginal_nll(score, target):
     """

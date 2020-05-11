@@ -17,10 +17,12 @@ from transformers import (
 
 LOGGER = logging.getLogger()
 
+
 class BioSyn(object):
     """
     Wrapper class for dense encoder and sparse encoder
     """
+
     def __init__(self):
         self.tokenizer = None
         self.encoder = None
@@ -92,7 +94,7 @@ class BioSyn(object):
 
     def load_bert(self, path, max_length, use_cuda):
         self.tokenizer = BertTokenizer(path=path, max_length=max_length)
-        config = BertConfig.from_json_file(os.path.join(path,"config.json"))
+        config = BertConfig.from_json_file(os.path.join(path, "config.json"))
         self.encoder = BertModel(path=path, config=config, use_cuda=use_cuda) # dense encoder
 
         return self.encoder, self.tokenizer
@@ -103,7 +105,7 @@ class BioSyn(object):
         return self.sparse_encoder
 
     def load_sparse_weight(self, path):
-        sparse_weight_file = os.path.join(path,'sparse_weight.pt')
+        sparse_weight_file = os.path.join(path, 'sparse_weight.pt')
         self.sparse_weight = torch.load(sparse_weight_file)
 
         return self.sparse_weight
@@ -146,11 +148,11 @@ class BioSyn(object):
         """
         
         def indexing_2d(arr, cols):
-            rows = np.repeat(np.arange(0,cols.shape[0])[:,np.newaxis],cols.shape[1],axis=1)
+            rows = np.repeat(np.arange(0,cols.shape[0])[:, np.newaxis],cols.shape[1],axis=1)
             return arr[rows, cols]
 
         # get topk indexes without sorting
-        topk_idxs = np.argpartition(score_matrix,-topk)[:,-topk:]
+        topk_idxs = np.argpartition(score_matrix,-topk)[:, -topk:]
 
         # get topk indexes with sorting
         topk_score_matrix = indexing_2d(score_matrix, topk_idxs)
@@ -187,7 +189,7 @@ class BioSyn(object):
             batch_sparse_embeds = self.sparse_encoder(batch)
             batch_sparse_embeds = batch_sparse_embeds.numpy()
             sparse_embeds.append(batch_sparse_embeds)
-        sparse_embeds = np.concatenate(sparse_embeds,axis=0)
+        sparse_embeds = np.concatenate(sparse_embeds, axis=0)
 
         return sparse_embeds
 
@@ -223,6 +225,6 @@ class BioSyn(object):
                 batch_dense_embeds = self.encoder(batch_tokenized_names)
                 batch_dense_embeds = batch_dense_embeds.cpu().detach().numpy()
                 dense_embeds.append(batch_dense_embeds)
-        dense_embeds = np.concatenate(dense_embeds,axis=0)
+        dense_embeds = np.concatenate(dense_embeds, axis=0)
         
         return dense_embeds
