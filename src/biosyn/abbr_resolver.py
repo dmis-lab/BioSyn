@@ -1,5 +1,6 @@
 import subprocess
 import os
+import pdb
 
 
 class Abbr_resolver():
@@ -11,11 +12,12 @@ class Abbr_resolver():
         result = subprocess.run([self.ab3p_path, corpus_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         line = result.stdout.decode('utf-8')
-        error = result.stderr.decode('utf-8')
-        if error == "Path file for type cshset does not exist!":
-            raise "Path file for type cshset does not exist!"
-        elif "Cannot open" in error:
-            raise "Cannot open file"
+        if "Path file for type cshset does not exist!" in line:
+            raise Exception(line)
+        elif "Cannot open" in line:
+            raise Exception(line)
+        elif "failed to open" in line:
+            raise Exception(line)
         lines = line.split("\n")
         result = {}
         for line in lines:

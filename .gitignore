@@ -16,7 +16,7 @@ notebook
 datasets/ncbi-disease/
 datasets/bc5cdr-disease/
 datasets/bc5cdr-chemical/
-datasets/dictionary/meddra18.1
+datasets/dictionary
 datasets/tac2017adr
 datasets/raw
 datasets/meddra
