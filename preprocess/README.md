@@ -1,4 +1,4 @@
-# How to pre-process datasets and dictionaires
+# Pre-processing datasets and dictionaries
 
 ## Requirements
 
@@ -13,9 +13,9 @@ Install the other dependenies
 conda install pandas
 ```
 
-## TAC2017ADR and MedDRA dictionary Preprocess
+## TAC2017ADR and MedDRA dictionary
 If you have the `TAC2017ADR` dataset, you can pre-process the dataset.
-Note than, you also need `MedDRA` dictionary (Please visit the [website](https://www.meddra.org/)). 
+Note that, you also need `MedDRA` dictionary (Please visit the [website](https://www.meddra.org/)). 
 
 
 First, parse the raw `TAC2017ADR` data.
