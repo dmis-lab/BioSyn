@@ -41,7 +41,7 @@ Note that we use development (dev) set to search the hyperparameters, and train 
 - [bc5cdr-disease](https://drive.google.com/open?id=1nvNYdfGrlZjya4RlhRu-IQJjRJzQcpyr)
 - [bc5cdr-chemical](https://drive.google.com/open?id=1nsWIWmds5p7UZIeqrKVnhNTaBQAbqVYk)
 
-`TAC2017ADR` dataset cannot be shared because of the license issue. Please visit the [website](https://bionlp.nlm.nih.gov/tac2017adversereactions/).
+`TAC2017ADR` dataset cannot be shared because of the license issue. Please visit the [website](https://bionlp.nlm.nih.gov/tac2017adversereactions/) or see [here](https://github.com/dmis-lab/BioSyn/tree/master/preprocess) for pre-processing scripts.
 
 ## Train
 
