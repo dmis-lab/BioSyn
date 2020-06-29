@@ -41,3 +41,6 @@ runs/
 dist
 build
 biosyn.egg-info
+
+#semantic ui
+semantic

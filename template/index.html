@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <!-- Header starts -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <link rel="stylesheet" type="text/css" href="semantic/semantic.css">
+        <script
+        src="https://code.jquery.com/jquery-3.1.1.min.js"
+        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+        crossorigin="anonymous">
+        </script>
+        <script src="semantic/semantic.js"></script>
+        <style>
+            .searchDiv {
+                margin: 10px;
+                padding: 20px;
+                text-align: center;
+            }
+
+            .searchForm {
+                display: inline-block;
+            }
+
+            .resultDiv{
+                width: 50%;
+                margin:auto;
+                text-align: center;
+            }
+            
+            .resultTable{
+                table-layout: fixed;
+            }
+        </style>
+        <title>BioSyn: Biomedical Entity Representation with Synonym Marginalization</title>
+    </head>
+    <body id='page-top'>
+        <h1 align="center">
+            BioSyn: <br>Biomedical Entity Representations with <br>Synonym Marginalization (Sung et al., ACL 2020) 
+        </h1>
+        <div align="center" class="ui list">
+            <ul >
+                <li>
+                    Up-to-date Dictionary
+                </li>
+                <li>
+                    Abbreviation Resolution --> Limitation
+                </li>
+                <li>
+                    Paper Link, Github Link
+                </li>
+                <li>
+                    KU Logo, DMIS Logo
+                </li>
+                <li>
+                    Sample
+                </li>
+            </ul>
+        </div>
+        <div class="searchDiv">
+            <form class='ui input' method='get'>
+                <input type="text" id="searchstring" placeholder="insert a mention">
+            </form>    
+        </div>
+        <div class="resultDiv">
+            <table class="ui large blue striped table resultTable">
+                <thead>
+                    <tr>
+                        <th>
+                            Rank
+                        </th>
+                        <th>
+                            Name
+                        </th>
+                        <th>
+                            CUI
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="resultTable">
+
+                </tbody>
+            </table>
+        </div>
+    </body>
+    <script>
+        oldVal = ""
+        $("#searchstring").on("change keyup", function () {
+            var currentVal = $(this).val();
+            if(currentVal == oldVal) {
+                return;
+            }
+            oldVal = currentVal;
+
+            $.ajax({
+                type: 'GET',
+                url: "/normalize/",
+                data: {
+                    string:currentVal
+                },
+                success: function (response) {
+                    var predictions = response.predictions;
+                    $('#resultTable').find('.row').remove();
+                    $.each(predictions, function(i, prediction) {
+                        name = prediction.name
+                        cui = prediction.id.split("|")[0]
+                        cui_with_link = ""
+                        if (cui.startsWith("D") || cui.startsWith("C")){
+                            cui_with_link = `<a href="https://meshb.nlm.nih.gov/record/ui?ui=${cui}">${cui}</a>`
+                        }
+                        else{
+                            cui_with_link = `<a href="https://www.omim.org/entry/${cui}">${cui}</a>`
+                        }
+                        var $tr = $('<tr class=row>').append(
+                            $('<td>').text(i+1),
+                            $('<td>').text(name),
+                            $('<td>').html(cui_with_link)
+                        ).appendTo('#resultTable');
+                    });
+                }
+            });
+        });
+    </script>
+</html>

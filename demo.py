@@ -2,32 +2,38 @@ import argparse
 import os
 import pdb
 import pickle
+import tornado.web
+import tornado.ioloop
+import tornado.autoreload
+import logging
+import json
+
 from src.biosyn import (
     DictionaryDataset,
     BioSyn,
     TextPreprocess
 )
 
-def parse_args():
-    """
-    Parse input arguments
-    """
-    parser = argparse.ArgumentParser(description='BioSyn Demo')
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
+    datefmt="%m/%d/%Y %H:%M:%S",
+    level=logging.INFO
+)
 
-    # Required
-    parser.add_argument('--mention', type=str, required=True, help='mention to normalize')
-    parser.add_argument('--model_dir', required=True, help='Directory for model')
+parser = argparse.ArgumentParser(description='BioSyn Demo')
 
-    # Settings
-    parser.add_argument('--show_embeddings',  action="store_true")
-    parser.add_argument('--show_predictions',  action="store_true")
-    parser.add_argument('--dictionary_path', type=str, default=None, help='dictionary path')
-    parser.add_argument('--use_cuda',  action="store_true")
-    
-    args = parser.parse_args()
-    return args
-    
-def cache_or_load_dictionary(biosyn, dictionary_path):
+# Required
+parser.add_argument('--model_dir', required=True, help='Directory for model')
+
+# Settings
+parser.add_argument('--port', type=int, default=8888, help='port number')
+parser.add_argument('--show_predictions',  action="store_true")
+parser.add_argument('--dictionary_path', type=str, default=None, help='dictionary path')
+parser.add_argument('--use_cuda',  action="store_true")
+
+args = parser.parse_args()
+
+def cache_or_load_dictionary():
     dictionary_name = os.path.splitext(os.path.basename(args.dictionary_path))[0]
     
     cached_dictionary_path = os.path.join(
@@ -66,69 +72,85 @@ def cache_or_load_dictionary(biosyn, dictionary_path):
 
     return dictionary, dict_sparse_embeds, dict_dense_embeds
 
-def main(args):
-    # load biosyn model
-    biosyn = BioSyn().load_model(
-            path=args.model_dir,
-            max_length=25,
-            use_cuda=args.use_cuda
-    )
+def normalize(mention):
     # preprocess mention
-    mention = TextPreprocess().run(args.mention)
-    
+    mention = TextPreprocess().run(mention)
+
     # embed mention
     mention_sparse_embeds = biosyn.embed_sparse(names=[mention])
     mention_dense_embeds = biosyn.embed_dense(names=[mention])
+
+    # calcuate score matrix and get top 1
+    sparse_score_matrix = biosyn.get_score_matrix(
+        query_embeds=mention_sparse_embeds,
+        dict_embeds=dict_sparse_embeds
+    )
+    dense_score_matrix = biosyn.get_score_matrix(
+        query_embeds=mention_dense_embeds,
+        dict_embeds=dict_dense_embeds
+    )
+    sparse_weight = biosyn.get_sparse_weight().item()
+    hybrid_score_matrix = sparse_weight * sparse_score_matrix + dense_score_matrix
+    hybrid_candidate_idxs = biosyn.retrieve_candidate(
+        score_matrix = hybrid_score_matrix, 
+        topk = 10
+    )
     
+    # get predictions from dictionary
+    predictions = dictionary[hybrid_candidate_idxs].squeeze(0)
     output = {
-        'mention': args.mention,
+        'predictions' : []
     }
 
-    if args.show_embeddings:
-        output = {
-            'mention': args.mention,
-            'mention_sparse_embeds': mention_sparse_embeds.squeeze(0),
-            'mention_dense_embeds': mention_dense_embeds.squeeze(0)
-        }
+    for prediction in predictions:
+        predicted_name = prediction[0]
+        predicted_id = prediction[1]
+        output['predictions'].append({
+            'name': predicted_name,
+            'id': predicted_id
+        })
 
-    if args.show_predictions:
-        if args.dictionary_path == None:
-            print('insert the dictionary path')
-            return
+    return output
 
-        # cache or load dictionary
-        dictionary, dict_sparse_embeds, dict_dense_embeds = cache_or_load_dictionary(biosyn, args.dictionary_path)
+# load biosyn model
+biosyn = BioSyn().load_model(
+    path=args.model_dir,
+    max_length=25,
+    use_cuda=args.use_cuda
+)
 
-        # calcuate score matrix and get top 5
-        sparse_score_matrix = biosyn.get_score_matrix(
-            query_embeds=mention_sparse_embeds,
-            dict_embeds=dict_sparse_embeds
-        )
-        dense_score_matrix = biosyn.get_score_matrix(
-            query_embeds=mention_dense_embeds,
-            dict_embeds=dict_dense_embeds
-        )
-        sparse_weight = biosyn.get_sparse_weight().item()
-        hybrid_score_matrix = sparse_weight * sparse_score_matrix + dense_score_matrix
-        hybrid_candidate_idxs = biosyn.retrieve_candidate(
-            score_matrix = hybrid_score_matrix, 
-            topk = 5
-        )
+# cache or load dictionary
+dictionary, dict_sparse_embeds, dict_dense_embeds = cache_or_load_dictionary()
+class MainHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.render("./template/index.html")
 
-        # get predictions from dictionary
-        predictions = dictionary[hybrid_candidate_idxs].squeeze(0)
-        output['predictions'] = []
+class NormalizeHandler(tornado.web.RequestHandler):
+    def get(self):
+        string = self.get_argument('string', '')
+        type = self.get_argument('type', '')
+        logging.info('get!{}'.format({
+            'string':string,
+            'type':type
+        }))
+        self.set_header("Content-Type", "application/json")    
+        output = normalize(mention=string)
+        
+        self.write(json.dumps(output))
+    
+def make_app():
+    settings={
+        'debug':True
+    }
+    return tornado.web.Application([
+        (r"/", MainHandler),
+        (r"/normalize/", NormalizeHandler),
+        (r'/semantic/(.*)', tornado.web.StaticFileHandler, {'path': './semantic'}),
+    ],**settings)
 
-        for prediction in predictions:
-            predicted_name = prediction[0]
-            predicted_id = prediction[1]
-            output['predictions'].append({
-                'name': predicted_name,
-                'id': predicted_id
-            })
-
-    print(output)
 
 if __name__ == '__main__':
-    args = parse_args()
-    main(args)
+    logging.info('Starting biosyn server at http://localhost:{}'.format(args.port))       
+    app = make_app()
+    app.listen(args.port)
+    tornado.ioloop.IOLoop.current().start()

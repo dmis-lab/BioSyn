@@ -151,7 +151,7 @@ MODEL=biosyn-ncbi-disease
 MODEL_DIR=./tmp/${MODEL}
 DATA_DIR=./datasets/ncbi-disease
 
-python demo.py \
+python inference.py \
     --model_dir ${MODEL_DIR} \
     --dictionary_path ${DATA_DIR}/test_dictionary.txt \
     --use_cuda \
@@ -181,7 +181,7 @@ MODEL=biosyn-ncbi-disease
 MODEL_DIR=./tmp/${MODEL}
 DATA_DIR=./datasets/ncbi-disease
 
-python demo.py \
+python inference.py \
     --model_dir ${MODEL_DIR} \
     --use_cuda \
     --mention "ataxia telangiectasia" \
