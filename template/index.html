@@ -80,7 +80,21 @@
         <div class="descriptionDiv">
             <i>Biosyn</i>
             is a deep learning-based framework to normalizes named entities in biomedical literatures. <br>
-            For web demo, only 'disease' type is available. 
+            For web demo, only 'disease' type is available.<br>
+            Dictionary is 2012.<br>
+            Abbreviation needs to be resolved before..<br>
+            Example:<br>
+            <ul>
+                <li>
+                    <a class='exampleA' href="prostate carcinomas">prostate carcinomas</a>
+                </li>
+                <li>
+                    <a class='exampleA' href="prostate carcinomas">prostate carcinomas</a>
+                </li>
+                <li>
+                    <a class='exampleA' href="prostate carcinomas">prostate carcinomas</a>
+                </li>
+            </ul>
         </div>
         <div class="searchDiv">
             <form class='ui input' method='get'>
@@ -110,7 +124,7 @@
         </div>
     </body>
     <footer>
-        <div class="footerDiv" align="center">
+        <div class="footerDiv">
             <a href="https://cs.korea.edu/cs_en/index.do" target="_blank">
                 <img class="footer_logo" src="images/logo_eng.gif" alt="">
             </a>
@@ -121,7 +135,19 @@
     </footer>
     <script>
         oldVal = ""
-        $("#searchstring").on("change keyup", function () {
+        
+        // update query with an example
+        $('.exampleA').on('click', function(e){
+            e.preventDefault();
+            $("#searchstring").val($(this).attr('href')).change();
+        })
+
+        $("#searchstring").on("change keyup keypress", function (e) {
+            //prevent enter
+            if(e.which == 13) {
+                e.preventDefault();
+            }
+
             var currentVal = $(this).val();
             if(currentVal == oldVal) {
                 return;
