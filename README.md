@@ -197,6 +197,22 @@ python inference.py \
 }
 ```
 
+## Demo
+
+### How to run web demo
+
+Web demo is implemented on [Tornado](https://www.tornadoweb.org/) framework.
+If a dictionary is not yet cached, it will take about couple of minutes to create dictionary cache.
+
+```bash
+MODEL=biosyn-ncbi-disease
+MODEL_DIR=./tmp/${MODEL}
+
+python demo.py \
+  --model_dir ${MODEL_DIR} \
+  --use_cuda \
+  --dictionary_path ./datasets/ncbi-disease/test_dictionary.txt
+```
 
 
 ## Citations

@@ -54,7 +54,7 @@ def cache_or_load_dictionary():
         )
 
     else:
-        dictionary = DictionaryDataset(dictionary_path = dictionary_path).data
+        dictionary = DictionaryDataset(dictionary_path = args.dictionary_path).data
         dictionary_names = dictionary[:,0]
         dict_sparse_embeds = biosyn.embed_sparse(names=dictionary_names, show_progress=True)
         dict_dense_embeds = biosyn.embed_dense(names=dictionary_names, show_progress=True)
@@ -146,6 +146,7 @@ def make_app():
         (r"/", MainHandler),
         (r"/normalize/", NormalizeHandler),
         (r'/semantic/(.*)', tornado.web.StaticFileHandler, {'path': './semantic'}),
+        (r'/images/(.*)', tornado.web.StaticFileHandler, {'path': './images'}),
     ],**settings)
 
 

@@ -1,6 +1,6 @@
 """
 input dictionary: cui||synonyms
-outpu dictionary: cui||name
+output dictionary: cui||name
 """
 
 import pdb
@@ -12,16 +12,6 @@ from biosyn import (
     TextPreprocess
 )
 
-def str2bool(v):
-    if isinstance(v, bool):
-        return v
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
-    
 def parse_args():
     """
     Parse input arguments
@@ -39,8 +29,8 @@ def parse_args():
                         help='path of additional dataset to append')
     
     # Text Preprocessing
-    parser.add_argument('--lowercase',  type=str2bool, default=True)
-    parser.add_argument('--remove_punctuation',  type=str2bool, default=True)
+    parser.add_argument('--lowercase',  action="store_true")
+    parser.add_argument('--remove_punctuation',  action="store_true")
 
     args = parser.parse_args()
 

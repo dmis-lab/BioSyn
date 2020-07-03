@@ -13,18 +13,33 @@
         </script>
         <script src="semantic/semantic.js"></script>
         <style>
+            @import url('https://fonts.googleapis.com/css2?family=Poppins:ital@1&display=swap');
+            .titleDiv{
+                margin: 10px;
+                padding: 20px;
+            }
+            .titleSpan{
+                font-style: italic;
+                font-family: 'Poppins', sans-serif;
+                font-size: 60px;
+            }
+
+            .descriptionDiv{
+                font-size: 20px;
+                /* text-align: center; */
+            }
+
             .searchDiv {
                 margin: 10px;
                 padding: 20px;
                 text-align: center;
             }
-
             .searchForm {
                 display: inline-block;
             }
 
             .resultDiv{
-                width: 50%;
+                /* width: 70%; */
                 margin:auto;
                 text-align: center;
             }
@@ -32,39 +47,49 @@
             .resultTable{
                 table-layout: fixed;
             }
+
+            .footerDiv{
+                position:absolute;
+                bottom:0;
+            }
+
+            .footer_logo{
+                height: 20px;
+                margin: 10px;
+            }
         </style>
         <title>BioSyn: Biomedical Entity Representation with Synonym Marginalization</title>
     </head>
     <body id='page-top'>
-        <h1 align="center">
-            BioSyn: <br>Biomedical Entity Representations with <br>Synonym Marginalization (Sung et al., ACL 2020) 
-        </h1>
-        <div align="center" class="ui list">
-            <ul >
-                <li>
-                    Up-to-date Dictionary
-                </li>
-                <li>
-                    Abbreviation Resolution --> Limitation
-                </li>
-                <li>
-                    Paper Link, Github Link
-                </li>
-                <li>
-                    KU Logo, DMIS Logo
-                </li>
-                <li>
-                    Sample
-                </li>
-            </ul>
+        <div class="ui secondary  menu">
+            <a class="active item">
+              Home
+            </a>
+            <div class="right menu">
+              <a href="https://arxiv.org/abs/2005.00239" class="ui item">
+                Paper
+              </a>
+              <a href="https://github.com/dmis-lab/BioSyn" class="ui item">
+                Github
+              </a>
+            </div>
+          </div>
+        <div align="center" class='titleDiv'>
+            <span class='titleSpan'>BioSyn</span>
+        </div>
+        <div class="descriptionDiv">
+            <i>Biosyn</i>
+            is a deep learning-based framework to normalizes named entities in biomedical literatures. <br>
+            For web demo, only 'disease' type is available. 
         </div>
         <div class="searchDiv">
             <form class='ui input' method='get'>
                 <input type="text" id="searchstring" placeholder="insert a mention">
-            </form>    
+            </form> 
         </div>
+        
         <div class="resultDiv">
-            <table class="ui large blue striped table resultTable">
+            <table class="ui large blue unstackable collapsing striped table resultTable">
                 <thead>
                     <tr>
                         <th>
@@ -84,6 +109,16 @@
             </table>
         </div>
     </body>
+    <footer>
+        <div class="footerDiv" align="center">
+            <a href="https://cs.korea.edu/cs_en/index.do" target="_blank">
+                <img class="footer_logo" src="images/logo_eng.gif" alt="">
+            </a>
+            <a href="https://dmis.korea.ac.kr" target="_blank">
+                <img class="footer_logo" src="images/logo_dmis.png" alt="">
+            </a>
+          </div>
+    </footer>
     <script>
         oldVal = ""
         $("#searchstring").on("change keyup", function () {
