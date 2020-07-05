@@ -25,11 +25,13 @@
                 display: flex;
                 flex-wrap: nowrap;
                 flex-direction: column;
+                max-width: 900px;
+                margin: auto;
+                font-size: 14px;
             }
 
             .titleDiv{
-                margin: 10px;
-                padding: 50px;
+                padding: 40px;
             }
             .titleSpan{
                 font-style: italic;
@@ -39,7 +41,7 @@
 
             .descriptionDiv{
                 margin:auto;
-                font-size: 20px;
+                font-size: 16px;
             }
 
             .searchDiv {
@@ -52,6 +54,7 @@
 
             .resultDiv{
                 margin:auto;
+                max-width:600px;
             }
             
             .resultTable{
@@ -85,15 +88,11 @@
           </div>
         <div class='flexDiv'>
             <div align="center" class='titleDiv'>
-                <span class='titleSpan'>BioSyn</span><br><br>
-                Biomedical Entity Representations with Synonym Marginalization (Sung et al., ACL 2020)
+                <span class='titleSpan'>BioSyn</span>
             </div>
             <div class="descriptionDiv">
                 <i>Biosyn</i>
-                is a deep learning-based framework to normalizes named entities in biomedical literatures. <br>
-                For web demo, only 'disease' type is available.<br>
-                Dictionary is 2012.<br>
-                Abbreviation needs to be resolved before..<br>
+                is a deep learning-based framework to normalize named entities in biomedical literatures into their unique IDs. <br>
                 Example:<br>
                 <ul>
                     <li>
@@ -106,6 +105,10 @@
                         <a class='exampleA' href="type ii deficiency">type ii deficiency</a>
                     </li>
                 </ul>
+                Note:<br>
+                * Only '<b>disease</b>' type is available at the moment. <br>
+                * The disease dictionary is July 6, 2012 version of MEDIC dictionary as described in the paper. <br>
+                * Abbreviations need to be expanded before inserted. (e.g., SARS -> Severe Acute Respiratory Syndrome) <br>
             </div>
             <div class="searchDiv">
                 <form class='ui input' method='get'>
@@ -114,7 +117,7 @@
             </div>
             
             <div class="resultDiv">
-                <table class="ui large blue unstackable collapsing striped table resultTable">
+                <table class="ui large blue unstackable striped table resultTable">
                     <thead>
                         <tr>
                             <th>
