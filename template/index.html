@@ -14,20 +14,27 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Poppins:ital@1&display=swap');
+            html, body{
+                height: 100%;
+            }
             .menuDiv{
                 background-color:rgba(34,36,38,.15);
             }
             .menuA{
                 font-size: 20px;
             }
-
-            .flexDiv{
+            
+            body{
                 display: flex;
                 flex-wrap: nowrap;
                 flex-direction: column;
+            }
+            .flexDiv{
                 max-width: 900px;
                 margin: auto;
                 font-size: 14px;
+                padding: 20px;
+                flex: 1 0 auto;
             }
 
             .titleDiv{
@@ -42,14 +49,18 @@
             .descriptionDiv{
                 margin:auto;
                 font-size: 16px;
+                font-family: Calibri,Candara,Segoe,Segoe UI,Optima,Arial,sans-serif; 
             }
 
             .searchDiv {
+                text-align: center;
                 margin:auto;
                 padding: 20px;
             }
-            .searchForm {
-                display: inline-block;
+            
+            .searchForm{
+                width: 300px;
+                max-width: 300px;
             }
 
             .resultDiv{
@@ -63,6 +74,9 @@
 
             .footerDiv{
                 text-align: center;
+                font-family: Calibri,Candara,Segoe,Segoe UI,Optima,Arial,sans-serif; 
+                flex-shrink: 0;
+                background-color: Gainsboro;
             }
 
             .footer_logo{
@@ -92,7 +106,7 @@
             </div>
             <div class="descriptionDiv">
                 <i>Biosyn</i>
-                is a deep learning-based framework to normalize named entities in biomedical literatures into their unique IDs. <br>
+                is a <b>deep learning-based biomedical entity normalization framework</b> by searching for the most 'semantically' similar term from the dictionary. The following results show the top 10 predictions. <br>
                 Example:<br>
                 <ul>
                     <li>
@@ -111,7 +125,7 @@
                 * Abbreviations need to be expanded before inserted. (e.g., SARS -> Severe Acute Respiratory Syndrome) <br>
             </div>
             <div class="searchDiv">
-                <form class='ui input' method='get'>
+                <form class='ui input searchForm' method='get'>
                     <input type="text" id="searchstring" placeholder="insert a mention">
                 </form> 
             </div>
@@ -146,6 +160,8 @@
             <a href="https://dmis.korea.ac.kr" target="_blank">
                 <img class="footer_logo" src="images/logo_dmis.png" alt="">
             </a>
+            <br>
+            <span>Biomedical Entity Representations with Synonym Marginalization (Sung et al., ACL 2020) </span><br>
           </div>
     </footer>
     <script>
