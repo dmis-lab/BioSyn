@@ -1,0 +1,10 @@
+07/06/2020 12:24:42 - INFO - src.biosyn.tokenizer -   BertTokenizer! max_length=25
+07/06/2020 12:24:42 - INFO - root -   BertModel! use_cuda=True
+07/06/2020 12:24:47 - INFO - root -   Sparse encoder loaded from /hdd1/mujeen/tmp/biosyn-ncbi-disease/sparse_encoder.pk
+07/06/2020 12:24:47 - INFO - root -   Starting biosyn server at http://localhost:8080
+07/06/2020 12:25:05 - INFO - tornado.access -   200 GET / (163.152.163.102) 4.34ms
+07/06/2020 12:25:06 - INFO - tornado.access -   200 GET /images/logo_eng.gif (163.152.163.102) 6.44ms
+07/06/2020 12:25:06 - INFO - tornado.access -   200 GET /images/logo_dmis.png (163.152.163.102) 7.25ms
+07/06/2020 12:25:06 - WARNING - tornado.access -   404 GET /favicon.ico (163.152.163.102) 2.30ms
+07/06/2020 12:25:11 - INFO - root -   get!{'string': 'prostate carcinomas'}
+07/06/2020 12:25:11 - INFO - tornado.access -   200 GET /normalize/?string=prostate%20carcinomas (163.152.163.102) 245.31ms

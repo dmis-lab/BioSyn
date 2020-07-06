@@ -214,6 +214,8 @@ python demo.py \
   --dictionary_path ./datasets/ncbi-disease/test_dictionary.txt
 ```
 
+You can try our running [demo](http://biosyn.korea.ac.kr) for nomalization of disease named entities.
+
 
 ## Citations
 ```bibtex

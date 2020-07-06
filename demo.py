@@ -15,6 +15,7 @@ from src.biosyn import (
 )
 
 logging.basicConfig(
+    filename='.server.log',
     format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
     datefmt="%m/%d/%Y %H:%M:%S",
     level=logging.INFO
@@ -128,10 +129,8 @@ class MainHandler(tornado.web.RequestHandler):
 class NormalizeHandler(tornado.web.RequestHandler):
     def get(self):
         string = self.get_argument('string', '')
-        type = self.get_argument('type', '')
         logging.info('get!{}'.format({
             'string':string,
-            'type':type
         }))
         self.set_header("Content-Type", "application/json")    
         output = normalize(mention=string)
