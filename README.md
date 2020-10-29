@@ -9,7 +9,7 @@
 </div>
 
 <div align="center">
-  <img alt="BioSyn Overview" src="https://github.com/dmis-lab/biosyn/blob/master/images/biosyn_overview.png" width="500px">
+  <img alt="BioSyn Overview" src="https://github.com/dmis-lab/BioSyn/blob/master/images/biosyn_demo.gif" width="600px">
 </div>
 
 We present BioSyn for learning biomedical entity representations. You can train BioSyn with the two main components described in our [paper](https://arxiv.org/abs/2005.00239): 1) synonym marginalization and 2) iterative candidate retrieval. Once you train BioSyn, you can easily normalize any biomedical mentions or represent them into entity embeddings.
