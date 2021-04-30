@@ -24,16 +24,6 @@ def parse_args():
     
     args = parser.parse_args()
     return args
-    
-# input_dirs = [
-#     '/home/mujeen/works/biosyn/datasets/raw/tac2017adr/train_xml',
-#     '/home/mujeen/works/biosyn/datasets/raw/tac2017adr/gold_xml',
-# ]
-
-# output_dirs = [
-#     os.path.join('/home/mujeen/works/biosyn/datasets/tac2017adr', 'train'),
-#     os.path.join('/home/mujeen/works/biosyn/datasets/tac2017adr', 'test'),
-# ]
 
 def parse_xml(file):
     doc = elemTree.parse(file)

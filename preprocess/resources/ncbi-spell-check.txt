@@ -1,0 +1,37 @@
+hepatosplenomegally||hepatosplenomegaly
+hemmorhage||haemorrhage
+fist||first
+bactermia||bacteremia
+conolidation||consolidation
+three||triple
+pneumococcl||pneumococcal
+collectionan||collection
+cirrohsis||cirrhosis
+adomen||abdomen
+delerium||delirium
+atrialfibrillation||atrial fibrillation
+processess||processes
+dysarthira||dysarthria
+occlussion||occlusion
+congenitcal||congenital
+atelctasis||atelectasis
+illeus||ileus
+pnuemonia||pneumonia
+withdrawel||withdrawal
+abdominla||abdominal
+hernation||herniation
+edamatous||edematous
+smallbowel||small bowel
+hyperpigementation||hyperpigmentation
+dispress||distress
+arrrest||arrest
+forhead||forehead
+le||leg
+leukaemia||leukemia
+abcess||abscess
+cerebeller||cerebellar
+sytem||system
+hemorrhage||haemorrhage
+parasthesias||paresthesias
+tumour||tumor
+tumours||tumors

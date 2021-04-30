@@ -81,3 +81,87 @@ python dictionary_preprocess.py \
     --lowercase true \
     --remove_punctuation true
 ```
+
+## NCBI Disease
+You can preprocess NCBI disease dataset from scratch.
+If you don't have the `NCBI-disease` dataset, you have to download it from the [website] (https://www.ncbi.nlm.nih.gov/CBBresearch/Dogan/DISEASE/).
+
+First, parse the raw `NCBI-disease` data.
+The result will be `mentions (*.concept)` and `contexts (*.txt)` 
+```
+DATA_DIR=../datasets
+
+python ./ncbi_disease_preprocess.py \
+    --input_file ${DATA_DIR}/raw/ncbi-disease/NCBItrainset_corpus.txt \
+    --output_dir ${DATA_DIR}/ncbi-disease/train
+
+python ./ncbi_disease_preprocess.py \
+    --input_file ${DATA_DIR}/raw/ncbi-disease/NCBIdevelopset_corpus.txt \
+    --output_dir ${DATA_DIR}/ncbi-disease/dev
+
+python ./ncbi_disease_preprocess.py \
+    --input_file ${DATA_DIR}/raw/ncbi-disease/NCBItestset_corpus.txt \
+    --output_dir ${DATA_DIR}/ncbi-disease/test
+```
+
+Second, apply the text preprocess to the train/dev/test dataset and their dictionaries
+```
+DATA_DIR=../datasets
+AB3P_PATH=../Ab3P/identify_abbr
+
+# preprocess trainset and its dictionary
+python dictionary_preprocess.py \
+    --input_dictionary_path ./resources/medic_06Jul2012.txt \
+    --output_dictionary_path ${DATA_DIR}/ncbi-disease/train_dictionary.txt \
+    --lowercase \
+    --remove_punctuation
+
+python ./query_preprocess.py \
+    --input_dir ${DATA_DIR}/ncbi-disease/train/ \
+    --output_dir ${DATA_DIR}/ncbi-disease/processed_train/ \
+    --dictionary_path ${DATA_DIR}/ncbi-disease/train_dictionary.txt \
+    --ab3p_path ${AB3P_PATH} \
+    --typo_path ./resources/ncbi-spell-check.txt \
+    --remove_cuiless \
+    --resolve_composites \
+    --lowercase true \
+    --remove_punctuation true
+
+# preprocess devset and its dictionary
+python dictionary_preprocess.py \
+    --input_dictionary_path ${DATA_DIR}/ncbi-disease/train_dictionary.txt \
+    --additional_data_dir ${DATA_DIR}/ncbi-disease/processed_train/ \
+    --output_dictionary_path ${DATA_DIR}/ncbi-disease/dev_dictionary.txt \
+    --lowercase \
+    --remove_punctuation
+
+python ./query_preprocess.py \
+    --input_dir ${DATA_DIR}/ncbi-disease/dev/ \
+    --output_dir ${DATA_DIR}/ncbi-disease/processed_dev/ \
+    --dictionary_path ${DATA_DIR}/ncbi-disease/dev_dictionary.txt \
+    --ab3p_path ${AB3P_PATH} \
+    --typo_path ./resources/ncbi-spell-check.txt \
+    --remove_cuiless \
+    --resolve_composites \
+    --lowercase true \
+    --remove_punctuation true
+
+# preprocess testset and its dictionary
+python dictionary_preprocess.py \
+    --input_dictionary_path ${DATA_DIR}/ncbi-disease/dev_dictionary.txt \
+    --additional_data_dir ${DATA_DIR}/ncbi-disease/processed_dev \
+    --output_dictionary_path ${DATA_DIR}/ncbi-disease/test_dictionary.txt \
+    --lowercase \
+    --remove_punctuation
+    
+python ./query_preprocess.py \
+    --input_dir ${DATA_DIR}/ncbi-disease/test/ \
+    --output_dir ${DATA_DIR}/ncbi-disease/processed_test/ \
+    --dictionary_path ${DATA_DIR}/ncbi-disease/test_dictionary.txt \
+    --ab3p_path ${AB3P_PATH} \
+    --typo_path ./resources/ncbi-spell-check.txt \
+    --remove_cuiless \
+    --resolve_composites \
+    --lowercase true \
+    --remove_punctuation true
+```

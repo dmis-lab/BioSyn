@@ -44,3 +44,5 @@ biosyn.egg-info
 
 #semantic ui
 semantic
+
+!preprocess/resources/*
