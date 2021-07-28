@@ -3,6 +3,7 @@ import os
 import re
 import subprocess
 from pathlib import Path
+import itertools
 
 import pandas as pd
 from tqdm import tqdm
@@ -216,6 +217,7 @@ def parse_args():
     parser.add_argument('--resolve_composites',  action="store_true")
     parser.add_argument('--lowercase',  type=str2bool, default=True)
     parser.add_argument('--remove_punctuation',  type=str2bool, default=True)
+    parser.add_argument('--filter_duplicate',  action='store_true')
 
     args = parser.parse_args()
     return args
@@ -250,14 +252,16 @@ def main(args):
 
         concept = parse_concept(concept_file)
 
-        # apply abbreviation resolve
-        abbr_dict = abbr_resolver.resolve(txt_file)
-        concept = apply_abbr_dict(concept, abbr_dict)
+        # hotfix
+        if '5501509' not in str(txt_file):
+            # apply abbreviation resolve
+            abbr_dict = abbr_resolver.resolve(txt_file)
+            concept = apply_abbr_dict(concept, abbr_dict)
 
         # apply composition resolve
         if args.resolve_composites:
             concept = apply_composite_resolve(concept)
-            
+        
         # apply basic preprocess
         concept = apply_basic_preprocess(concept, text_preprocessor)
         
@@ -267,9 +271,15 @@ def main(args):
                 dict_path = args.dictionary_path
                 cui_set = load_cui_set(dict_path)
             concept = filter_cuiless(concept, cui_set)
+        
+
+        if args.filter_duplicate:
+            concept.sort()
+            concept = list(concept for concept,_ in itertools.groupby(concept))
+        
         num_queries += len(concept)
         write_concept(output_path, concept)
-    
+
     print("total number of queries={}".format(num_queries))
 
 if __name__ == '__main__':

@@ -195,8 +195,8 @@ def main(args):
             eval_queries = eval_queries[:100]
 
     # filter only names
-    names_in_train_dictionary = train_dictionary[:,0]
-    names_in_train_queries = train_queries[:,0]
+    names_in_train_dictionary = train_dictionary[:,0] # [name, cui]
+    names_in_train_queries = train_queries[:,0] # [name, cui, pmid]
 
     # names_in_train_dictionary = train_dictionary[:,0]
     # names_in_train_queries = train_queries[:,0]
@@ -206,8 +206,6 @@ def main(args):
         max_length=args.max_length,
         use_cuda=args.use_cuda
     )
-
-
 
     encoder, tokenizer = biosyn.load_dense_encoder(
         model_name_or_path=args.model_name_or_path,

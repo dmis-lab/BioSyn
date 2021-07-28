@@ -61,6 +61,7 @@ class QueryDataset(Dataset):
 
             for concept in concepts:
                 concept = concept.split("||")
+                pmid = concept[0]
                 mention = concept[3].strip()
                 cui = concept[4].strip()
                 is_composite = (cui.replace("+","|").count("|") > 0)
@@ -68,7 +69,7 @@ class QueryDataset(Dataset):
                 if filter_composite and is_composite:
                     continue
                 else:
-                    data.append((mention,cui))
+                    data.append((mention,cui, pmid))
         
         if filter_duplicate:
             data = list(dict.fromkeys(data))

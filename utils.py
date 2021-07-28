@@ -60,6 +60,7 @@ def predict_topk(biosyn, eval_dictionary, eval_queries, topk, score_mode='hybrid
     for eval_query in tqdm(eval_queries, total=len(eval_queries)):
         mentions = eval_query[0].replace("+","|").split("|")
         golden_cui = eval_query[1].replace("+","|")
+        pmid = eval_query[2]
         
         dict_mentions = []
         for mention in mentions:
@@ -99,6 +100,7 @@ def predict_topk(biosyn, eval_dictionary, eval_queries, topk, score_mode='hybrid
             dict_mentions.append({
                 'mention':mention,
                 'golden_cui':golden_cui, # golden_cui can be composite cui
+                'pmid':pmid,
                 'candidates':dict_candidates
             })
         queries.append({

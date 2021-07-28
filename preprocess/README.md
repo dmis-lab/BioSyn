@@ -165,3 +165,89 @@ python ./query_preprocess.py \
     --lowercase true \
     --remove_punctuation true
 ```
+
+## NLMChem
+You can preprocess NLMChem dataset from scratch.
+
+First, parse the raw `NLMChem` data.
+The result will be `mentions (*.concept)` and `contexts (*.txt)` 
+```
+DATA_DIR=../datasets
+
+python ./nlmchem_preprocess.py \
+    --input_file ${DATA_DIR}/raw/NLMChem/BC7T2-NLMChem-corpus-train.BioC.json \
+    --output_dir ${DATA_DIR}/NLMChem/train
+
+python ./nlmchem_preprocess.py \
+    --input_file ${DATA_DIR}/raw/NLMChem/BC7T2-NLMChem-corpus-dev.BioC.json \
+    --output_dir ${DATA_DIR}/NLMChem/dev
+
+python ./nlmchem_preprocess.py \
+    --input_file ${DATA_DIR}/raw/NLMChem/BC7T2-NLMChem-corpus-test.BioC.json \
+    --output_dir ${DATA_DIR}/NLMChem/test
+```
+
+Second, apply the text preprocess to the train/dev/test dataset and their dictionaries
+```
+DATA_DIR=../datasets
+AB3P_PATH=../Ab3P/identify_abbr
+
+# preprocess raw dictionary
+python ctd_preprocess.py \
+    --type chemical \
+    --inpath /home/mujeen/works/bc7ner/chemical.tsv \
+    --outpath /home/mujeen/works/BioSyn-dmis/preprocess/resources/ctd_chemical_30Jun2021.txt
+
+# preprocess trainset and its dictionary
+python dictionary_preprocess.py \
+    --input_dictionary_path ./resources/ctd_chemical_30Jun2021.txt \
+    --output_dictionary_path ${DATA_DIR}/NLMChem/train_dictionary.txt \
+    --lowercase \
+    --remove_punctuation
+
+python ./query_preprocess.py \
+    --input_dir ${DATA_DIR}/NLMChem/train/ \
+    --output_dir ${DATA_DIR}/NLMChem/processed_train/ \
+    --dictionary_path ${DATA_DIR}/NLMChem/train_dictionary.txt \
+    --ab3p_path ${AB3P_PATH} \
+    --resolve_composites \
+    --lowercase true \
+    --remove_punctuation true \
+    --filter_duplicate
+
+# preprocess devset and its dictionary
+python dictionary_preprocess.py \
+    --input_dictionary_path ${DATA_DIR}/NLMChem/train_dictionary.txt \
+    --additional_data_dir ${DATA_DIR}/NLMChem/processed_train/ \
+    --output_dictionary_path ${DATA_DIR}/NLMChem/dev_dictionary.txt \
+    --lowercase \
+    --remove_punctuation
+
+python ./query_preprocess.py \
+    --input_dir ${DATA_DIR}/NLMChem/dev/ \
+    --output_dir ${DATA_DIR}/NLMChem/processed_dev/ \
+    --dictionary_path ${DATA_DIR}/NLMChem/dev_dictionary.txt \
+    --ab3p_path ${AB3P_PATH} \
+    --resolve_composites \
+    --lowercase true \
+    --remove_punctuation true \
+    --filter_duplicate
+
+# preprocess testset and its dictionary
+python dictionary_preprocess.py \
+    --input_dictionary_path ${DATA_DIR}/NLMChem/dev_dictionary.txt \
+    --additional_data_dir ${DATA_DIR}/NLMChem/processed_dev \
+    --output_dictionary_path ${DATA_DIR}/NLMChem/test_dictionary.txt \
+    --lowercase \
+    --remove_punctuation
+    
+python ./query_preprocess.py \
+    --input_dir ${DATA_DIR}/NLMChem/test/ \
+    --output_dir ${DATA_DIR}/NLMChem/processed_test/ \
+    --dictionary_path ${DATA_DIR}/NLMChem/test_dictionary.txt \
+    --ab3p_path ${AB3P_PATH} \
+    --resolve_composites \
+    --lowercase true \
+    --remove_punctuation true \
+    --filter_duplicate
+```
