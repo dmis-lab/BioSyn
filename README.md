@@ -16,11 +16,11 @@ We present BioSyn for learning biomedical entity representations. You can train 
 
 ## Requirements
 ```bash
-$ conda create -n BioSyn python=3.6
+$ conda create -n BioSyn python=3.7
 $ conda activate BioSyn
 $ conda install numpy tqdm nltk scikit-learn
-$ conda install pytorch=1.1.0 cudatoolkit=9.0 -c pytorch
-$ pip install transformers==2.0.0
+$ conda install pytorch=1.4.0 cudatoolkit=10.0 -c pytorch
+$ pip install transformers==4.9.1
 ```
 Note that Pytorch has to be installed depending on the version of CUDA.
 
@@ -48,15 +48,17 @@ Note that we use development (dev) set to search the hyperparameters, and train 
 The following example fine-tunes our model on NCBI-Disease dataset (train+dev) with BioBERTv1.1. 
 
 ```bash
-MODEL=biosyn-ncbi-disease
-BIOBERT_DIR=./pretrained/pt_biobert1.1
-OUTPUT_DIR=./tmp/${MODEL}
+OUTPUT_MODEL=biosyn-ncbi-disease
+MODEL_NAME_OR_PATH=dmis-lab/biobert-base-cased-v1.1
+OUTPUT_DIR=./tmp/${OUTPUT_MODEL}
 DATA_DIR=./datasets/ncbi-disease
 
 python train.py \
-    --model_dir ${BIOBERT_DIR} \
+    --model_name_or_path ${MODEL_NAME_OR_PATH} \
     --train_dictionary_path ${DATA_DIR}/train_dictionary.txt \
     --train_dir ${DATA_DIR}/processed_traindev \
+    --eval_dictionary_path ${DATA_DIR}/test_dictionary.txt \
+    --eval_dir ${DATA_DIR}/processed_test \
     --output_dir ${OUTPUT_DIR} \
     --use_cuda \
     --topk 20 \
@@ -65,7 +67,9 @@ python train.py \
     --initial_sparse_weight 0\
     --learning_rate 1e-5 \
     --max_length 25 \
-    --dense_ratio 0.5
+    --dense_ratio 1.0 \
+    --do_cuiless \
+    --do_eval
 ```
 
 Note that you can train the model on `processed_train` and evaluate it on `processed_dev` when you want to search for the hyperparameters. (the argument `--save_checkpoint_all` can be helpful. )

@@ -29,12 +29,19 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Biosyn train')
 
     # Required
-    parser.add_argument('--model_dir', required=True,
-                        help='Directory for pretrained model')
+    # parser.add_argument('--model_dir', required=True,
+    #                     help='Directory for pretrained model')
+    parser.add_argument('--model_name_or_path', required=True,
+                        help='name or path for dense encoder (e.g., bert-base-cased)')
     parser.add_argument('--train_dictionary_path', type=str, required=True,
                     help='train dictionary path')
     parser.add_argument('--train_dir', type=str, required=True,
                     help='training set directory')
+    parser.add_argument('--do_eval',  action="store_true")
+    parser.add_argument('--eval_dictionary_path', type=str, required=False,
+                    help='eval dictionary path')
+    parser.add_argument('--eval_dir', type=str, required=False,
+                    help='eval set directory')
     parser.add_argument('--output_dir', type=str, required=True,
                         help='Directory for output')
     
@@ -64,6 +71,8 @@ def parse_args():
     parser.add_argument('--dense_ratio', type=float,
                         default=0.5)
     parser.add_argument('--save_checkpoint_all', action="store_true")
+    parser.add_argument('--draft', action="store_true")
+    parser.add_argument('--do_cuiless', action="store_true")
 
     args = parser.parse_args()
     return args
@@ -87,7 +96,7 @@ def init_seed(seed=None):
     random.seed(seed)
     torch.backends.cudnn.deterministic = True
     
-def load_dictionary(dictionary_path):
+def load_dictionary(dictionary_path, cuiless_token):
     """
     load dictionary
     
@@ -97,7 +106,8 @@ def load_dictionary(dictionary_path):
         a path of dictionary
     """
     dictionary = DictionaryDataset(
-            dictionary_path = dictionary_path
+            dictionary_path = dictionary_path,
+            cuiless_token = cuiless_token
     )
     
     return dictionary.data
@@ -132,7 +142,7 @@ def train(args, data_loader, model):
     for i, data in tqdm(enumerate(data_loader), total=len(data_loader)):
         model.optimizer.zero_grad()
         batch_x, batch_y = data
-        batch_pred = model(batch_x)  
+        batch_pred = model(batch_x) 
         loss = model.get_loss(batch_pred, batch_y)
         loss.backward()
         model.optimizer.step()
@@ -150,30 +160,68 @@ def main(args):
     # prepare for output
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
-        
+    
+    cuiless_token = None
+    if args.do_cuiless:
+        cuiless_token = '[CUI-LESS]'
+
     # load dictionary and queries
-    train_dictionary = load_dictionary(dictionary_path=args.train_dictionary_path)
+    train_dictionary = load_dictionary(
+        dictionary_path=args.train_dictionary_path,
+        cuiless_token=cuiless_token
+    )
     train_queries = load_queries(
         data_dir = args.train_dir, 
         filter_composite=True,
         filter_duplicate=True
     )
-        
+
+    if args.draft:
+        train_dictionary = train_dictionary[:1000]
+        train_queries = train_queries[:100]
+    
+    if args.do_eval:
+        eval_dictionary = load_dictionary(
+            dictionary_path=args.eval_dictionary_path,
+            cuiless_token=cuiless_token
+        )
+        eval_queries = load_queries(
+            data_dir=args.eval_dir,
+            filter_composite=False,
+            filter_duplicate=False
+        )
+        if args.draft:
+            eval_dictionary = eval_dictionary[:1000]
+            eval_queries = eval_queries[:100]
+
     # filter only names
     names_in_train_dictionary = train_dictionary[:,0]
     names_in_train_queries = train_queries[:,0]
 
+    # names_in_train_dictionary = train_dictionary[:,0]
+    # names_in_train_queries = train_queries[:,0]
+
     # load BERT tokenizer, dense_encoder, sparse_encoder
-    biosyn = BioSyn()
-    encoder, tokenizer = biosyn.load_bert(
-        path=args.model_dir, 
+    biosyn = BioSyn(
         max_length=args.max_length,
-        use_cuda=args.use_cuda,
+        use_cuda=args.use_cuda
     )
+
+
+
+    encoder, tokenizer = biosyn.load_dense_encoder(
+        model_name_or_path=args.model_name_or_path,
+        cuiless_token= cuiless_token
+    )
+
+    # encoder, tokenizer = biosyn.load_bert(
+    #     path=args.model_dir, 
+    #     max_length=args.max_length,
+    #     use_cuda=args.use_cuda,
+    # )
     sparse_encoder = biosyn.train_sparse_encoder(corpus=names_in_train_dictionary)
     sparse_weight = biosyn.init_sparse_weight(
         initial_sparse_weight=args.initial_sparse_weight,
-        use_cuda=args.use_cuda
     )
     
     # load rerank model
@@ -203,11 +251,13 @@ def main(args):
     train_set = CandidateDataset(
         queries = train_queries, 
         dicts = train_dictionary, 
-        tokenizer = tokenizer, 
+        tokenizer = tokenizer,
+        max_length = args.max_length,
         topk = args.topk, 
         d_ratio=args.dense_ratio,
         s_score_matrix=train_sparse_score_matrix,
-        s_candidate_idxs=train_sparse_candidate_idxs
+        s_candidate_idxs=train_sparse_candidate_idxs,
+        cuiless_token=cuiless_token
     )
     train_loader = torch.utils.data.DataLoader(
         train_set,
@@ -216,6 +266,7 @@ def main(args):
     )
 
     start = time.time()
+    best_performance = 0.0
     for epoch in range(1,args.epoch+1):
         # embed dense representations for query and dictionary for train
         # Important! This is iterative process because dense represenation changes as model is trained.
@@ -245,10 +296,27 @@ def main(args):
                 os.makedirs(checkpoint_dir)
             biosyn.save_model(checkpoint_dir)
         
-        # save model last epoch
-        if epoch == args.epoch:
-            biosyn.save_model(args.output_dir)
-            
+        if args.do_eval:
+            result_evalset = evaluate(
+                biosyn=biosyn,
+                eval_dictionary=eval_dictionary,
+                eval_queries=eval_queries,
+                topk=args.topk,
+                score_mode="dense"
+            )
+            if best_performance < result_evalset['acc1']:
+                best_performance = result_evalset['acc1']
+                # save model best epoch
+                biosyn.save_model(args.output_dir)
+                output_file = os.path.join(args.output_dir,"predictions_eval.json")
+                with open(output_file, 'w') as f:
+                    json.dump(result_evalset, f, indent=2)
+                print(f"best_performance={best_performance}")
+
+        # # save model last epoch
+        # if epoch == args.epoch:
+        #     biosyn.save_model(args.output_dir)
+
     end = time.time()
     training_time = end-start
     training_hour = int(training_time/60/60)

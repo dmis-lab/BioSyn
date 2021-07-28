@@ -73,10 +73,8 @@ def main(args):
         filter_duplicate=args.filter_duplicate
     )
 
-    biosyn = BioSyn().load_model(
+    biosyn = BioSyn(max_length=args.max_length,use_cuda=args.use_cuda).load_model(
             path=args.model_dir,
-            max_length=args.max_length,
-            use_cuda=args.use_cuda
     )
     
     result_evalset = evaluate(

@@ -83,7 +83,7 @@ class DictionaryDataset():
     """
     A class used to load dictionary data
     """
-    def __init__(self, dictionary_path):
+    def __init__(self, dictionary_path, cuiless_token):
         """
         Parameters
         ----------
@@ -92,12 +92,12 @@ class DictionaryDataset():
         draft : bool
             use only small subset
         """
-        LOGGER.info("DictionaryDataset! dictionary_path={}".format(
-            dictionary_path 
+        LOGGER.info("DictionaryDataset! dictionary_path={} cuiless_token={}".format(
+            dictionary_path, cuiless_token
         ))
-        self.data = self.load_data(dictionary_path)
-        
-    def load_data(self, dictionary_path):
+        self.data = self.load_data(dictionary_path, cuiless_token)
+
+    def load_data(self, dictionary_path, cuiless_token):
         name_cui_map = {}
         data = []
         with open(dictionary_path, mode='r', encoding='utf-8') as f:
@@ -106,8 +106,13 @@ class DictionaryDataset():
                 line = line.strip()
                 if line == "": continue
                 cui, name = line.split("||")
+                if name == "": continue
                 data.append((name,cui))
-        
+
+        if cuiless_token:
+            # append cuiless in front
+            data.insert(0, (cuiless_token, "-"))
+
         data = np.array(data)
         return data
 
@@ -117,7 +122,7 @@ class CandidateDataset(Dataset):
     Candidate Dataset for:
         query_tokens, candidate_tokens, label
     """
-    def __init__(self, queries, dicts, tokenizer, topk, d_ratio, s_score_matrix, s_candidate_idxs):
+    def __init__(self, queries, dicts, tokenizer, max_length, topk, d_ratio, s_score_matrix, s_candidate_idxs, cuiless_token):
         """
         Retrieve top-k candidates based on sparse/dense embedding
 
@@ -127,8 +132,8 @@ class CandidateDataset(Dataset):
             A list of tuples (name, id)
         dicts : list
             A list of tuples (name, id)
-        tokenizer : BertTokenizer
-            A BERT tokenizer for dense embedding
+        tokenizer : AutoTokenizer
+            A tokenizer for dense embedding
         topk : int
             The number of candidates
         d_ratio : float
@@ -136,14 +141,16 @@ class CandidateDataset(Dataset):
         s_score_matrix : np.array
         s_candidate_idxs : np.array
         """
-        LOGGER.info("CandidateDataset! len(queries)={} len(dicts)={} topk={} d_ratio={}".format(
-            len(queries),len(dicts), topk, d_ratio))
+        LOGGER.info("CandidateDataset! len(queries)={} len(dicts)={} topk={} d_ratio={} cuiless_token={}".format(
+            len(queries),len(dicts), topk, d_ratio, cuiless_token))
         self.query_names, self.query_ids = [row[0] for row in queries], [row[1] for row in queries]
         self.dict_names, self.dict_ids = [row[0] for row in dicts], [row[1] for row in dicts]
         self.topk = topk
         self.n_dense = int(topk * d_ratio)
         self.n_sparse = topk - self.n_dense
         self.tokenizer = tokenizer
+        self.max_length = max_length
+        self.cuiless_token = cuiless_token
 
         self.s_score_matrix = s_score_matrix
         self.s_candidate_idxs = s_candidate_idxs
@@ -158,8 +165,9 @@ class CandidateDataset(Dataset):
         assert (self.d_candidate_idxs is not None)
 
         query_name = self.query_names[query_idx]
-        query_token = self.tokenizer.transform([query_name])
+        query_token = self.tokenizer(query_name, max_length=self.max_length, padding='max_length', truncation=True, return_tensors='pt')
 
+        # query_token = self.tokenizer.transform([query_name])
         # combine sparse and dense candidates as many as top-k
         s_candidate_idx = self.s_candidate_idxs[query_idx]
         d_candidate_idx = self.d_candidate_idxs[query_idx]
@@ -179,13 +187,18 @@ class CandidateDataset(Dataset):
         assert len(topk_candidate_idx) == len(set(topk_candidate_idx))
         
         candidate_names = [self.dict_names[candidate_idx] for candidate_idx in topk_candidate_idx]
-        candidate_s_scores = self.s_score_matrix[query_idx][topk_candidate_idx]
         labels = self.get_labels(query_idx, topk_candidate_idx).astype(np.float32)
-        query_token = np.array(query_token).squeeze()
-
-        candidate_tokens = self.tokenizer.transform(candidate_names)
-        candidate_tokens = np.array(candidate_tokens)
         
+        if self.cuiless_token:
+            # Replace the last candidate to cuiless.
+            # assert cuiless_token == '[CUI-LESS]'
+            candidate_names[-1] = self.cuiless_token
+            # If any label of candidates isn't 1, set cuiless to 1.
+            if not labels[:-1].any(): labels[-1] = 1
+
+        candidate_s_scores = self.s_score_matrix[query_idx][topk_candidate_idx]
+        candidate_tokens = self.tokenizer(candidate_names, max_length=self.max_length, padding='max_length', truncation=True, return_tensors='pt')
+
         return (query_token, candidate_tokens, candidate_s_scores), labels
 
     def __len__(self):

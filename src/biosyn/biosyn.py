@@ -6,37 +6,55 @@ import numpy as np
 import time
 from tqdm import tqdm
 from torch import nn
-from .tokenizer import BertTokenizer
-from .sparse_encoder import SparseEncoder
-from .bertmodel import BertModel
-from .rerankNet import RerankNet
-
+# from .tokenizer import BertTokenizer
+# from .bertmodel import BertModel
+# from transformers import (
+#     BertConfig
+# )
 from transformers import (
-    BertConfig
+    AutoTokenizer,
+    # AutoConfig,
+    AutoModel,
+    default_data_collator
 )
+from .sparse_encoder import SparseEncoder
+from .rerankNet import RerankNet
+from torch.utils.data.dataloader import DataLoader
 
 LOGGER = logging.getLogger()
 
+class NamesDataset(torch.utils.data.Dataset):
+    def __init__(self, encodings):
+        self.encodings = encodings
+
+    def __getitem__(self, idx):
+        return {key: torch.tensor(val[idx]) for key, val in self.encodings.items()}
+
+    def __len__(self):
+        return len(self.encodings.input_ids)
 
 class BioSyn(object):
     """
     Wrapper class for dense encoder and sparse encoder
     """
 
-    def __init__(self):
+    def __init__(self, max_length, use_cuda):
         self.tokenizer = None
         self.encoder = None
         self.sparse_encoder = None
         self.sparse_weight = None
 
-    def init_sparse_weight(self, initial_sparse_weight, use_cuda):
+        self.max_length = max_length
+        self.use_cuda = use_cuda
+
+    def init_sparse_weight(self, initial_sparse_weight):
         """
         Parameters
         ----------
         initial_sparse_weight : float
             initial sparse weight
         """
-        if use_cuda:
+        if self.use_cuda:
             self.sparse_weight = nn.Parameter(torch.empty(1).cuda())
         else:
             self.sparse_weight = nn.Parameter(torch.empty(1))
@@ -70,14 +88,8 @@ class BioSyn(object):
         return self.sparse_weight
 
     def save_model(self, path):
-        # save bert model, bert config
         self.encoder.save_pretrained(path)
-
-        # save bert vocab
-        self.tokenizer.save_bert_vocab(path)
-        
-        # save sparse encoder
-
+        self.tokenizer.save_pretrained(path)
         sparse_encoder_path = os.path.join(path,'sparse_encoder.pk')
         self.sparse_encoder.save_encoder(path=sparse_encoder_path)
         
@@ -85,17 +97,25 @@ class BioSyn(object):
         torch.save(self.sparse_weight, sparse_weight_file)
         logging.info("Sparse weight saved in {}".format(sparse_weight_file))
 
-    def load_model(self, path, max_length=25, use_cuda=True):
-        self.load_bert(path, max_length, use_cuda)
+    def load_model(self, path, use_cuda=True):
+        self.encoder, self.tokenizer = self.load_dense_encoder(
+            model_name_or_path=path
+        )
         self.load_sparse_encoder(path)
         self.load_sparse_weight(path)
         
         return self
 
-    def load_bert(self, path, max_length, use_cuda):
-        self.tokenizer = BertTokenizer(path=path, max_length=max_length)
-        config = BertConfig.from_json_file(os.path.join(path, "config.json"))
-        self.encoder = BertModel(path=path, config=config, use_cuda=use_cuda) # dense encoder
+    def load_dense_encoder(self, model_name_or_path, cuiless_token):
+        self.encoder = AutoModel.from_pretrained(model_name_or_path)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
+        if cuiless_token != None:
+            # assert cuiless_token == '[CUI-LESS]'
+            self.tokenizer.add_tokens(cuiless_token, special_tokens=True)
+            self.encoder.resize_token_embeddings(len(self.tokenizer))
+        
+        if self.use_cuda:
+            self.encoder = self.encoder.to("cuda")
 
         return self.encoder, self.tokenizer
 
@@ -177,7 +197,7 @@ class BioSyn(object):
         """
         batch_size=1024
         sparse_embeds = []
-        
+
         if show_progress:
             iterations = tqdm(range(0, len(names), batch_size))
         else:
@@ -212,18 +232,17 @@ class BioSyn(object):
         batch_size=1024
         dense_embeds = []
 
+        #TODO! tokenize dictionary only once
+        name_encodings = self.tokenizer(names.tolist(), padding="max_length", max_length=self.max_length, truncation=True, return_tensors="pt")
+        if self.use_cuda:
+            name_encodings = name_encodings.to('cuda')
+        name_dataset = NamesDataset(name_encodings)
+        name_dataloader = DataLoader(name_dataset, shuffle=False, collate_fn=default_data_collator, batch_size=batch_size)
+
         with torch.no_grad():
-            if show_progress:
-                iterations = tqdm(range(0, len(names), batch_size))
-            else:
-                iterations = range(0, len(names), batch_size)
-                
-            for start in iterations:
-                end = min(start + batch_size, len(names))
-                batch = names[start:end]
-                batch_tokenized_names = self.tokenizer.transform(batch)
-                batch_dense_embeds = self.encoder(batch_tokenized_names)
-                batch_dense_embeds = batch_dense_embeds.cpu().detach().numpy()
+            for batch in tqdm(name_dataloader, disable=not show_progress, desc='embedding dictionary'):
+                outputs = self.encoder(**batch)
+                batch_dense_embeds = outputs[0][:,0].cpu().detach().numpy() # [CLS] representations
                 dense_embeds.append(batch_dense_embeds)
         dense_embeds = np.concatenate(dense_embeds, axis=0)
         
