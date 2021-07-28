@@ -112,7 +112,7 @@ def load_dictionary(dictionary_path, cuiless_token):
     
     return dictionary.data
     
-def load_queries(data_dir, filter_composite, filter_duplicate):
+def load_queries(data_dir, filter_composite, filter_duplicate, is_train):
     """
     load query data
     
@@ -128,7 +128,8 @@ def load_queries(data_dir, filter_composite, filter_duplicate):
     dataset = QueryDataset(
         data_dir=data_dir,
         filter_composite=filter_composite,
-        filter_duplicate=filter_duplicate
+        filter_duplicate=filter_duplicate,
+        is_train=is_train
     )
     
     return dataset.data
@@ -173,7 +174,8 @@ def main(args):
     train_queries = load_queries(
         data_dir = args.train_dir, 
         filter_composite=True,
-        filter_duplicate=True
+        filter_duplicate=True,
+        is_train=True
     )
 
     if args.draft:
@@ -188,7 +190,8 @@ def main(args):
         eval_queries = load_queries(
             data_dir=args.eval_dir,
             filter_composite=False,
-            filter_duplicate=False
+            filter_duplicate=False,
+            is_train=False
         )
         if args.draft:
             eval_dictionary = eval_dictionary[:1000]

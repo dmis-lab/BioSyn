@@ -12,7 +12,8 @@ class QueryDataset(Dataset):
 
     def __init__(self, data_dir, 
                 filter_composite=False,
-                filter_duplicate=False
+                filter_duplicate=False,
+                is_train=False
         ):
         """       
         Parameters
@@ -33,10 +34,11 @@ class QueryDataset(Dataset):
         self.data = self.load_data(
             data_dir=data_dir,
             filter_composite=filter_composite,
-            filter_duplicate=filter_duplicate
+            filter_duplicate=filter_duplicate,
+            is_train=is_train
         )
         
-    def load_data(self, data_dir, filter_composite, filter_duplicate):
+    def load_data(self, data_dir, filter_composite, filter_duplicate,is_train):
         """       
         Parameters
         ----------
@@ -61,7 +63,7 @@ class QueryDataset(Dataset):
 
             for concept in concepts:
                 concept = concept.split("||")
-                pmid = concept[0]
+                pmid = concept[0] if not is_train else '' # in trainset, pmid doesn't matter 
                 mention = concept[3].strip()
                 cui = concept[4].strip()
                 is_composite = (cui.replace("+","|").count("|") > 0)
