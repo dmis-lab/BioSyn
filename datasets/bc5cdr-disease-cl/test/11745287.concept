@@ -1,0 +1,21 @@
+11745287||83|120||Disease||squamous cell carcinoma of the cervix||D002294|D002583
+11745287||265|283||Disease||cervical carcinoma||D002583
+11745287||507|539||Disease||squamous cell cervical carcinoma||D002294|D002583
+11745287||576|584||Disease||toxicity||D064420
+11745287||690|698||Disease||toxicity||D064420
+11745287||887|903||Disease||myelosuppression||D001855
+11745287||924|935||Disease||neutropenia||D009503
+11745287||952|958||Disease||anemia||D000740
+11745287||975|991||Disease||thrombocytopenia||D013921
+11745287||1012|1029||Disease||neutropenic fever||D009503|D005334
+11745287||1227|1235||Disease||toxicity||D064420
+11745287||1245|1251||Disease||nausea||D009325
+11745287||1268|1274||Disease||emesis||D014839
+11745287||1291|1298||Disease||fatigue||D005221
+11745287||1314|1323||Disease||mucositis||D052016
+11745287||1331|1341||Disease||stomatitis||D013280
+11745287||1357|1369||Disease||constipation||D003248
+11745287||1385|1396||Disease||weight loss||D015431
+11745287||1412|1430||Disease||hand-foot syndrome||D060831
+11745287||1450|1464||Disease||skin reactions||D012871
+11745287||1597|1615||Disease||cervical carcinoma||D002583
