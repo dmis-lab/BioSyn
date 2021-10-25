@@ -60,6 +60,10 @@ def parse_args():
     parser.add_argument('--epoch',
                         help='epoch to train',
                         default=10, type=int)
+    parser.add_argument('--initial_sparse_weight',
+                        default=0, type=float)
+    parser.add_argument('--dense_ratio', type=float,
+                        default=0.5)
     parser.add_argument('--save_checkpoint_all', action="store_true")
 
     args = parser.parse_args()
@@ -175,9 +179,6 @@ def main(args):
     biosyn.load_dense_encoder(
         model_name_or_path=args.model_name_or_path
     )
-    encoder, tokenizer = biosyn.load_model(
-        model_name_or_path=args.model_name_or_path
-    )
     
     # load rerank model
     model = RerankNet(
@@ -187,14 +188,31 @@ def main(args):
         sparse_weight=biosyn.get_sparse_weight(),
         use_cuda=args.use_cuda
     )
-    
+
+    # embed sparse representations for query and dictionary
+    # Important! This is one time process because sparse represenation never changes.
+    LOGGER.info("Sparse embedding")
+    train_query_sparse_embeds = biosyn.embed_sparse(names=names_in_train_queries)
+    train_dict_sparse_embeds = biosyn.embed_sparse(names=names_in_train_dictionary)
+    train_sparse_score_matrix = biosyn.get_score_matrix(
+        query_embeds=train_query_sparse_embeds, 
+        dict_embeds=train_dict_sparse_embeds
+    )
+    train_sparse_candidate_idxs = biosyn.retrieve_candidate(
+        score_matrix=train_sparse_score_matrix, 
+        topk=args.topk
+    )
+
     # prepare for data loader of train and dev
     train_set = CandidateDataset(
         queries = train_queries, 
         dicts = train_dictionary, 
         tokenizer = biosyn.get_dense_tokenizer(), 
-        max_length = args.max_length,
+        s_score_matrix=train_sparse_score_matrix,
+        s_candidate_idxs=train_sparse_candidate_idxs,
         topk = args.topk, 
+        d_ratio=args.dense_ratio,
+        max_length=args.max_length
     )
     train_loader = torch.utils.data.DataLoader(
         train_set,
