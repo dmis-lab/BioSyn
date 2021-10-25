@@ -31,10 +31,11 @@ class RerankNet(nn.Module):
 
         output : (N, topk)
         """
-        query_token, candidate_tokens = x
+        query_token, candidate_tokens, candidate_s_scores = x
         batch_size, topk, max_length = candidate_tokens['input_ids'].shape
 
         if self.use_cuda:
+            candidate_s_scores = candidate_s_scores.cuda()
             query_token['input_ids'] = query_token['input_ids'].to('cuda')
             query_token['token_type_ids'] = query_token['token_type_ids'].to('cuda')
             query_token['attention_mask'] = query_token['attention_mask'].to('cuda')

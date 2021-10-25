@@ -15,13 +15,13 @@
 We present BioSyn for learning biomedical entity representations. You can train BioSyn with the two main components described in our [paper](https://arxiv.org/abs/2005.00239): 1) synonym marginalization and 2) iterative candidate retrieval. Once you train BioSyn, you can easily normalize any biomedical mentions or represent them into entity embeddings.
 
 ### Updates
-* \[**Oct 24, 2021**\] The sparse representations (i.e., tf-idf) are removed for two reasons. First, using only dense representations makes BioSyn more simple to use while the performance is almost the same. Second, it allows the checkpoints to be uploaded in Huggingface hub so that anyone can access to our trained models easily(Please check out [here](#trained-models)). For those who want to reproduce the same results as described in our paper, we leave our previous code in the  branch [biosyn_v1](https://github.com/dmis-lab/BioSyn/tree/biosyn_v1).
+* \[**Oct 25, 2021**\] Trained models are uploaded in Huggingface Hub(Please check out [here](#trained-models)). Other than BioBERT, we also train our model using another pre-trained model [SapBERT](https://github.com/cambridgeltl/sapbert), and this shows better performance than as described in our paper.
 
 ## Requirements
 ```bash
 $ conda create -n BioSyn python=3.7
 $ conda activate BioSyn
-$ conda install numpy tqdm
+$ conda install numpy tqdm scikit-learn
 $ conda install pytorch=1.8.0 cudatoolkit=10.2 -c pytorch
 $ pip install transformers==4.11.3
 ```
@@ -138,20 +138,20 @@ We provide a simple script that can normalize a biomedical mention or represent 
 #### NCBI-Disease
 |              Model                | Acc@1/Acc@5 |
 |:----------------------------------|:--------:|
-| [biosyn-biobert-ncbi-disease](https://huggingface.co/dmis-lab/biosyn-biobert-ncbi-disease) | 90.5/94.5 |
-| [biosyn-sapbert-ncbi-disease](https://huggingface.co/dmis-lab/biosyn-sapbert-ncbi-disease) | **92.9**/**96.1** |
+| [biosyn-biobert-ncbi-disease](https://huggingface.co/dmis-lab/biosyn-biobert-ncbi-disease) | 91.1/93.9 |
+| [biosyn-sapbert-ncbi-disease](https://huggingface.co/dmis-lab/biosyn-sapbert-ncbi-disease) | **92.4**/**95.8** |
 
 #### BC5CDR-Disease
 |              Model                | Acc@1/Acc@5 |
 |:----------------------------------|:--------:|
-| [biosyn-biobert-bc5cdr-disease](https://huggingface.co/dmis-lab/biosyn-biobert-bc5cdr-disease) | 93.3/**96.4** |
-| [biosyn-sapbert-bc5cdr-disease](https://huggingface.co/dmis-lab/biosyn-sapbert-bc5cdr-disease) | **93.7**/**96.4** |
+| [biosyn-biobert-bc5cdr-disease](https://huggingface.co/dmis-lab/biosyn-biobert-bc5cdr-disease) | 93.2/96.0 |
+| [biosyn-sapbert-bc5cdr-disease](https://huggingface.co/dmis-lab/biosyn-sapbert-bc5cdr-disease) | **93.5**/**96.4** |
 
 #### BC5CDR-Chemical
 |              Model                | Acc@1/Acc@5 |
 |:----------------------------------|:--------:|
-| [biosyn-biobert-bc5cdr-chemical](https://huggingface.co/dmis-lab/biosyn-biobert-bc5cdr-chemical) | 96.5/97.2 |
-| [biosyn-sapbert-bc5cdr-chemical](https://huggingface.co/dmis-lab/biosyn-sapbert-bc5cdr-chemical) | **96.8**/**98.3** |
+| [biosyn-biobert-bc5cdr-chemical](https://huggingface.co/dmis-lab/biosyn-biobert-bc5cdr-chemical) | **96.6**/97.2 |
+| [biosyn-sapbert-bc5cdr-chemical](https://huggingface.co/dmis-lab/biosyn-sapbert-bc5cdr-chemical) | **96.6**/**98.3** |
 
 ### Predictions (Top 5)
 
@@ -201,6 +201,7 @@ python inference.py \
 ```
 {
   "mention": "ataxia telangiectasia", 
+  "mention_sparse_embeds": array([0.05979538, 0., ..., 0., 0.], dtype=float32),
   "mention_dense_embeds": array([-7.14258850e-02, ..., -4.03847933e-01,],dtype=float32)
 }
 ```

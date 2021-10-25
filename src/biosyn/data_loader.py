@@ -117,7 +117,7 @@ class CandidateDataset(Dataset):
     Candidate Dataset for:
         query_tokens, candidate_tokens, label
     """
-    def __init__(self, queries, dicts, tokenizer, max_length, topk):
+    def __init__(self, queries, dicts, tokenizer, max_length, topk, d_ratio, s_score_matrix, s_candidate_idxs):
         """
         Retrieve top-k candidates based on sparse/dense embedding
 

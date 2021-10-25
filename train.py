@@ -159,6 +159,7 @@ def main(args):
     if args.draft:
         train_dictionary = train_dictionary[:100]
         train_queries = train_queries[:10]
+        args.output_dir = args.output_dir + "_draft"
         
     # filter only names
     names_in_train_dictionary = train_dictionary[:,0]
@@ -167,7 +168,12 @@ def main(args):
     # load BERT tokenizer, dense_encoder, sparse_encoder
     biosyn = BioSyn(
         max_length=args.max_length,
-        use_cuda=args.use_cuda
+        use_cuda=args.use_cuda,
+        initial_sparse_weight=args.initial_sparse_weight
+    )
+    biosyn.init_sparse_encoder(corpus=names_in_train_dictionary)
+    biosyn.load_dense_encoder(
+        model_name_or_path=args.model_name_or_path
     )
     encoder, tokenizer = biosyn.load_model(
         model_name_or_path=args.model_name_or_path
@@ -175,9 +181,10 @@ def main(args):
     
     # load rerank model
     model = RerankNet(
-        encoder = encoder,
         learning_rate=args.learning_rate, 
         weight_decay=args.weight_decay,
+        encoder = biosyn.get_dense_encoder(),
+        sparse_weight=biosyn.get_sparse_weight(),
         use_cuda=args.use_cuda
     )
     
@@ -185,7 +192,7 @@ def main(args):
     train_set = CandidateDataset(
         queries = train_queries, 
         dicts = train_dictionary, 
-        tokenizer = tokenizer, 
+        tokenizer = biosyn.get_dense_tokenizer(), 
         max_length = args.max_length,
         topk = args.topk, 
     )
