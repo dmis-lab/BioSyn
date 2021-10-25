@@ -12,11 +12,11 @@ def parse_args():
     """
     Parse input arguments
     """
-    parser = argparse.ArgumentParser(description='BioSyn Demo')
+    parser = argparse.ArgumentParser(description='BioSyn Inference')
 
     # Required
     parser.add_argument('--mention', type=str, required=True, help='mention to normalize')
-    parser.add_argument('--model_dir', required=True, help='Directory for model')
+    parser.add_argument('--model_name_or_path', required=True, help='Directory for model')
 
     # Settings
     parser.add_argument('--show_embeddings',  action="store_true")
@@ -27,12 +27,12 @@ def parse_args():
     args = parser.parse_args()
     return args
     
-def cache_or_load_dictionary(biosyn, dictionary_path):
+def cache_or_load_dictionary(biosyn, model_name_or_path,dictionary_path):
     dictionary_name = os.path.splitext(os.path.basename(args.dictionary_path))[0]
     
     cached_dictionary_path = os.path.join(
         './tmp',
-        "cached_{}.pk".format(dictionary_name)
+        f"cached_{model_name_or_path.split("/")[-1]}_{dictionary_name}.pk"
     )
 
     # If exist, load the cached dictionary
@@ -41,21 +41,18 @@ def cache_or_load_dictionary(biosyn, dictionary_path):
             cached_dictionary = pickle.load(fin)
         print("Loaded dictionary from cached file {}".format(cached_dictionary_path))
 
-        dictionary, dict_sparse_embeds, dict_dense_embeds = (
+        dictionary, dict_embeds = (
             cached_dictionary['dictionary'],
-            cached_dictionary['dict_sparse_embeds'],
-            cached_dictionary['dict_dense_embeds'],
+            cached_dictionary['dict_embeds'],
         )
 
     else:
         dictionary = DictionaryDataset(dictionary_path = dictionary_path).data
         dictionary_names = dictionary[:,0]
-        dict_sparse_embeds = biosyn.embed_sparse(names=dictionary_names, show_progress=True)
-        dict_dense_embeds = biosyn.embed_dense(names=dictionary_names, show_progress=True)
+        dict_embeds = biosyn.embed_dense(names=dictionary_names, show_progress=True)
         cached_dictionary = {
             'dictionary': dictionary,
-            'dict_sparse_embeds' : dict_sparse_embeds,
-            'dict_dense_embeds' : dict_dense_embeds
+            'dict_embeds' : dict_embeds
         }
 
         if not os.path.exists('./tmp'):
@@ -64,21 +61,21 @@ def cache_or_load_dictionary(biosyn, dictionary_path):
             pickle.dump(cached_dictionary, fin)
         print("Saving dictionary into cached file {}".format(cached_dictionary_path))
 
-    return dictionary, dict_sparse_embeds, dict_dense_embeds
+    return dictionary, dict_embeds
 
 def main(args):
     # load biosyn model
-    biosyn = BioSyn().load_model(
-            path=args.model_dir,
-            max_length=25,
-            use_cuda=args.use_cuda
+    biosyn = BioSyn(
+        max_length=25,
+        use_cuda=args.use_cuda
     )
+    
+    biosyn.load_model(model_name_or_path=args.model_name_or_path)
     # preprocess mention
     mention = TextPreprocess().run(args.mention)
     
     # embed mention
-    mention_sparse_embeds = biosyn.embed_sparse(names=[mention])
-    mention_dense_embeds = biosyn.embed_dense(names=[mention])
+    mention_embeds = biosyn.embed_dense(names=[mention])
     
     output = {
         'mention': args.mention,
@@ -87,8 +84,7 @@ def main(args):
     if args.show_embeddings:
         output = {
             'mention': args.mention,
-            'mention_sparse_embeds': mention_sparse_embeds.squeeze(0),
-            'mention_dense_embeds': mention_dense_embeds.squeeze(0)
+            'mention_embeds': mention_embeds.squeeze(0)
         }
 
     if args.show_predictions:
@@ -97,26 +93,20 @@ def main(args):
             return
 
         # cache or load dictionary
-        dictionary, dict_sparse_embeds, dict_dense_embeds = cache_or_load_dictionary(biosyn, args.dictionary_path)
+        dictionary, dict_embeds = cache_or_load_dictionary(biosyn, args.dictionary_path)
 
         # calcuate score matrix and get top 5
-        sparse_score_matrix = biosyn.get_score_matrix(
-            query_embeds=mention_sparse_embeds,
-            dict_embeds=dict_sparse_embeds
+        score_matrix = biosyn.get_score_matrix(
+            query_embeds=mention_embeds,
+            dict_embeds=dict_embeds
         )
-        dense_score_matrix = biosyn.get_score_matrix(
-            query_embeds=mention_dense_embeds,
-            dict_embeds=dict_dense_embeds
-        )
-        sparse_weight = biosyn.get_sparse_weight().item()
-        hybrid_score_matrix = sparse_weight * sparse_score_matrix + dense_score_matrix
-        hybrid_candidate_idxs = biosyn.retrieve_candidate(
-            score_matrix = hybrid_score_matrix, 
+        candidate_idxs = biosyn.retrieve_candidate(
+            score_matrix = score_matrix, 
             topk = 5
         )
 
         # get predictions from dictionary
-        predictions = dictionary[hybrid_candidate_idxs].squeeze(0)
+        predictions = dictionary[candidate_idxs].squeeze(0)
         output['predictions'] = []
 
         for prediction in predictions:

@@ -24,7 +24,7 @@ logging.basicConfig(
 parser = argparse.ArgumentParser(description='BioSyn Demo')
 
 # Required
-parser.add_argument('--model_dir', required=True, help='Directory for model')
+parser.add_argument('--model_name_or_path', required=True, help='Directory for model')
 
 # Settings
 parser.add_argument('--port', type=int, default=8888, help='port number')
@@ -48,21 +48,18 @@ def cache_or_load_dictionary():
             cached_dictionary = pickle.load(fin)
         print("Loaded dictionary from cached file {}".format(cached_dictionary_path))
 
-        dictionary, dict_sparse_embeds, dict_dense_embeds = (
+        dictionary, dict_embeds = (
             cached_dictionary['dictionary'],
-            cached_dictionary['dict_sparse_embeds'],
-            cached_dictionary['dict_dense_embeds'],
+            cached_dictionary['dict_embeds'],
         )
 
     else:
         dictionary = DictionaryDataset(dictionary_path = args.dictionary_path).data
         dictionary_names = dictionary[:,0]
-        dict_sparse_embeds = biosyn.embed_sparse(names=dictionary_names, show_progress=True)
-        dict_dense_embeds = biosyn.embed_dense(names=dictionary_names, show_progress=True)
+        dict_embeds = biosyn.embed_dense(names=dictionary_names, show_progress=True)
         cached_dictionary = {
             'dictionary': dictionary,
-            'dict_sparse_embeds' : dict_sparse_embeds,
-            'dict_dense_embeds' : dict_dense_embeds
+            'dict_embeds' : dict_embeds
         }
 
         if not os.path.exists('./tmp'):
@@ -71,34 +68,27 @@ def cache_or_load_dictionary():
             pickle.dump(cached_dictionary, fin)
         print("Saving dictionary into cached file {}".format(cached_dictionary_path))
 
-    return dictionary, dict_sparse_embeds, dict_dense_embeds
+    return dictionary, dict_embeds
 
 def normalize(mention):
     # preprocess mention
     mention = TextPreprocess().run(mention)
 
     # embed mention
-    mention_sparse_embeds = biosyn.embed_sparse(names=[mention])
-    mention_dense_embeds = biosyn.embed_dense(names=[mention])
+    mention_embeds = biosyn.embed_dense(names=[mention])
 
     # calcuate score matrix and get top 1
-    sparse_score_matrix = biosyn.get_score_matrix(
-        query_embeds=mention_sparse_embeds,
-        dict_embeds=dict_sparse_embeds
+    score_matrix = biosyn.get_score_matrix(
+        query_embeds=mention_embeds,
+        dict_embeds=dict_embeds
     )
-    dense_score_matrix = biosyn.get_score_matrix(
-        query_embeds=mention_dense_embeds,
-        dict_embeds=dict_dense_embeds
-    )
-    sparse_weight = biosyn.get_sparse_weight().item()
-    hybrid_score_matrix = sparse_weight * sparse_score_matrix + dense_score_matrix
-    hybrid_candidate_idxs = biosyn.retrieve_candidate(
-        score_matrix = hybrid_score_matrix, 
+    candidate_idxs = biosyn.retrieve_candidate(
+        score_matrix = score_matrix, 
         topk = 10
     )
     
     # get predictions from dictionary
-    predictions = dictionary[hybrid_candidate_idxs].squeeze(0)
+    predictions = dictionary[candidate_idxs].squeeze(0)
     output = {
         'predictions' : []
     }
@@ -114,14 +104,17 @@ def normalize(mention):
     return output
 
 # load biosyn model
-biosyn = BioSyn().load_model(
-    path=args.model_dir,
-    max_length=25,
-    use_cuda=args.use_cuda
+biosyn = BioSyn(
+    use_cuda=args.use_cuda,
+    max_length=25
+)
+    
+biosyn.load_model(
+    model_name_or_path=args.model_name_or_path
 )
 
 # cache or load dictionary
-dictionary, dict_sparse_embeds, dict_dense_embeds = cache_or_load_dictionary()
+dictionary, dict_embeds = cache_or_load_dictionary()
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("./template/index.html")

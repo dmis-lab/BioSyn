@@ -29,7 +29,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Biosyn train')
 
     # Required
-    parser.add_argument('--model_dir', required=True,
+    parser.add_argument('--model_name_or_path', required=True,
                         help='Directory for pretrained model')
     parser.add_argument('--train_dictionary_path', type=str, required=True,
                     help='train dictionary path')
@@ -45,6 +45,7 @@ def parse_args():
     parser.add_argument('--seed',  type=int, 
                         default=0)
     parser.add_argument('--use_cuda',  action="store_true")
+    parser.add_argument('--draft',  action="store_true")
     parser.add_argument('--topk',  type=int, 
                         default=20)
     parser.add_argument('--learning_rate',
@@ -59,10 +60,6 @@ def parse_args():
     parser.add_argument('--epoch',
                         help='epoch to train',
                         default=10, type=int)
-    parser.add_argument('--initial_sparse_weight',
-                        default=0, type=float)
-    parser.add_argument('--dense_ratio', type=float,
-                        default=0.5)
     parser.add_argument('--save_checkpoint_all', action="store_true")
 
     args = parser.parse_args()
@@ -158,22 +155,22 @@ def main(args):
         filter_composite=True,
         filter_duplicate=True
     )
+
+    if args.draft:
+        train_dictionary = train_dictionary[:100]
+        train_queries = train_queries[:10]
         
     # filter only names
     names_in_train_dictionary = train_dictionary[:,0]
     names_in_train_queries = train_queries[:,0]
 
     # load BERT tokenizer, dense_encoder, sparse_encoder
-    biosyn = BioSyn()
-    encoder, tokenizer = biosyn.load_bert(
-        path=args.model_dir, 
+    biosyn = BioSyn(
         max_length=args.max_length,
-        use_cuda=args.use_cuda,
-    )
-    sparse_encoder = biosyn.train_sparse_encoder(corpus=names_in_train_dictionary)
-    sparse_weight = biosyn.init_sparse_weight(
-        initial_sparse_weight=args.initial_sparse_weight,
         use_cuda=args.use_cuda
+    )
+    encoder, tokenizer = biosyn.load_model(
+        model_name_or_path=args.model_name_or_path
     )
     
     # load rerank model
@@ -181,33 +178,16 @@ def main(args):
         encoder = encoder,
         learning_rate=args.learning_rate, 
         weight_decay=args.weight_decay,
-        sparse_weight=sparse_weight,
         use_cuda=args.use_cuda
     )
     
-    # embed sparse representations for query and dictionary
-    # Important! This is one time process because sparse represenation never changes.
-    LOGGER.info("Sparse embedding")
-    train_query_sparse_embeds = biosyn.embed_sparse(names=names_in_train_queries)
-    train_dict_sparse_embeds = biosyn.embed_sparse(names=names_in_train_dictionary)
-    train_sparse_score_matrix = biosyn.get_score_matrix(
-        query_embeds=train_query_sparse_embeds, 
-        dict_embeds=train_dict_sparse_embeds
-    )
-    train_sparse_candidate_idxs = biosyn.retrieve_candidate(
-        score_matrix=train_sparse_score_matrix, 
-        topk=args.topk
-    )
-
     # prepare for data loader of train and dev
     train_set = CandidateDataset(
         queries = train_queries, 
         dicts = train_dictionary, 
         tokenizer = tokenizer, 
+        max_length = args.max_length,
         topk = args.topk, 
-        d_ratio=args.dense_ratio,
-        s_score_matrix=train_sparse_score_matrix,
-        s_candidate_idxs=train_sparse_candidate_idxs
     )
     train_loader = torch.utils.data.DataLoader(
         train_set,

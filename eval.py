@@ -20,7 +20,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='BioSyn evaluation')
 
     # Required
-    parser.add_argument('--model_dir', required=True, help='Directory for model')
+    parser.add_argument('--model_name_or_path', required=True, help='Directory for model')
     parser.add_argument('--dictionary_path', type=str, required=True, help='dictionary path')
     parser.add_argument('--data_dir', type=str, required=True, help='data set to evaluate')
 
@@ -73,10 +73,12 @@ def main(args):
         filter_duplicate=args.filter_duplicate
     )
 
-    biosyn = BioSyn().load_model(
-            path=args.model_dir,
-            max_length=args.max_length,
-            use_cuda=args.use_cuda
+    biosyn = BioSyn(
+        max_length=args.max_length,
+        use_cuda=args.use_cuda
+    )
+    biosyn.load_model(
+        model_name_or_path=args.model_name_or_path,
     )
     
     result_evalset = evaluate(
@@ -84,7 +86,6 @@ def main(args):
         eval_dictionary=eval_dictionary,
         eval_queries=eval_queries,
         topk=args.topk,
-        score_mode=args.score_mode
     )
     
     LOGGER.info("acc@1={}".format(result_evalset['acc1']))

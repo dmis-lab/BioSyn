@@ -14,22 +14,18 @@
 
 We present BioSyn for learning biomedical entity representations. You can train BioSyn with the two main components described in our [paper](https://arxiv.org/abs/2005.00239): 1) synonym marginalization and 2) iterative candidate retrieval. Once you train BioSyn, you can easily normalize any biomedical mentions or represent them into entity embeddings.
 
+### Updates
+* \[**Oct 24, 2021**\] The sparse representations (i.e., tf-idf) are removed for two reasons. First, using only dense representations makes BioSyn more simple to use(we all know that simple is the best) while the performance is almost the same. Second, it allows the checkpoints to be uploaded in Huggingface hub so that anyone can access to our trained models easily(Please check out [here](#trained-models)). For those who want to reproduce the same results as described in our paper, we leave our previous code in the  branch [biosyn_v1](https://github.com/dmis-lab/BioSyn/tree/biosyn_v1).
+
 ## Requirements
 ```bash
-$ conda create -n BioSyn python=3.6
+$ conda create -n BioSyn python=3.7
 $ conda activate BioSyn
-$ conda install numpy tqdm nltk scikit-learn
-$ conda install pytorch=1.1.0 cudatoolkit=9.0 -c pytorch
-$ pip install transformers==2.0.0
+$ conda install numpy tqdm
+$ conda install pytorch=1.8.0 cudatoolkit=10.2 -c pytorch
+$ pip install transformers==4.11.3
 ```
 Note that Pytorch has to be installed depending on the version of CUDA.
-
-## Resources
-
-### Pretrained Model
-We use the [Huggingface](https://github.com/huggingface/transformers) version of [BioBERT v1.1](https://github.com/dmis-lab/biobert) so that the pretrained model can be run on the pytorch framework.
-
-- [biobert v1.1 (pytorch)](https://drive.google.com/drive/folders/1nSjj-ubecQbwYPdz3NyAqiJ1-rLtguUp?usp=sharing)
 
 ### Datasets
 
@@ -48,13 +44,12 @@ Note that we use development (dev) set to search the hyperparameters, and train 
 The following example fine-tunes our model on NCBI-Disease dataset (train+dev) with BioBERTv1.1. 
 
 ```bash
-MODEL=biosyn-ncbi-disease
-BIOBERT_DIR=./pretrained/pt_biobert1.1
-OUTPUT_DIR=./tmp/${MODEL}
+MODEL_NAME_OR_PATH=dmis-lab/biobert-base-cased-v1.1
+OUTPUT_DIR=./tmp/biosyn-biobert-ncbi-disease
 DATA_DIR=./datasets/ncbi-disease
 
-python train.py \
-    --model_dir ${BIOBERT_DIR} \
+CUDA_VISIBLE_DEVICES=1 python train.py \
+    --model_name_or_path ${MODEL_NAME_OR_PATH} \
     --train_dictionary_path ${DATA_DIR}/train_dictionary.txt \
     --train_dir ${DATA_DIR}/processed_traindev \
     --output_dir ${OUTPUT_DIR} \
@@ -62,10 +57,8 @@ python train.py \
     --topk 20 \
     --epoch 10 \
     --train_batch_size 16\
-    --initial_sparse_weight 0\
     --learning_rate 1e-5 \
-    --max_length 25 \
-    --dense_ratio 0.5
+    --max_length 25
 ```
 
 Note that you can train the model on `processed_train` and evaluate it on `processed_dev` when you want to search for the hyperparameters. (the argument `--save_checkpoint_all` can be helpful. )
@@ -75,13 +68,12 @@ Note that you can train the model on `processed_train` and evaluate it on `proce
 The following example evaluates our trained model with NCBI-Disease dataset (test). 
 
 ```bash
-MODEL=biosyn-ncbi-disease
-MODEL_DIR=./tmp/${MODEL}
-OUTPUT_DIR=./tmp/${MODEL}
+MODEL_NAME_OR_PATH=./tmp/biosyn-biobert-ncbi-disease
+OUTPUT_DIR=./tmp/biosyn-biobert-ncbi-disease
 DATA_DIR=./datasets/ncbi-disease
 
 python eval.py \
-    --model_dir ${MODEL_DIR} \
+    --model_name_or_path ${MODEL_NAME_OR_PATH} \
     --dictionary_path ${DATA_DIR}/test_dictionary.txt \
     --data_dir ${DATA_DIR}/processed_test \
     --output_dir ${OUTPUT_DIR} \
@@ -140,19 +132,27 @@ Following is an example.
 ```
 
 ## Inference
-We provide a simple script that can normalize a biomedical mention or represent the mention into an embedding vector with BioSyn. If you do not have pre-trained BioSyn, please download [BioSyn pre-trained on NCBI-Disease](https://drive.google.com/drive/folders/1oOkY1Vtn508i0Q542IcJKFVm_d40Xj1I?usp=sharing).
+We provide a simple script that can normalize a biomedical mention or represent the mention into an embedding vector with BioSyn. 
+### Trained models
 
+|              Model                | Dataset | Acc@1/Acc@5 |
+|:----------------------------------|:--------:|:--------:|:--------:|
+| [biosyn-biobert-ncbi-disease](https://huggingface.co/dmis-lab/biosyn-biobert-ncbi-disease) | NCBI-Disease | 90.5/94.5 |
+| [biosyn-sapbert-ncbi-disease](https://huggingface.co/dmis-lab/biosyn-sapbert-ncbi-disease) | NCBI-Disease | 92.9/96.1 |
+| [biosyn-biobert-bc5cdr-disease](https://huggingface.co/dmis-lab/biosyn-biobert-bc5cdr-disease) | BC5CDR-Disease | 93.3/96.4 |
+| [biosyn-sapbert-bc5cdr-disease](https://huggingface.co/dmis-lab/biosyn-sapbert-bc5cdr-disease) | BC5CDR-Disease | 93.7/96.4 |
+| [biosyn-biobert-bc5cdr-chemical](https://huggingface.co/dmis-lab/biosyn-biobert-bc5cdr-chemical) | BC5CDR-Chemical | 96.5/97.2 |
+| [biosyn-sapbert-bc5cdr-chemical](https://huggingface.co/dmis-lab/biosyn-sapbert-bc5cdr-chemical) | BC5CDR-Chemical | 96.8/98.3 |
 ### Predictions (Top 5)
 
 The example below gives the top 5 predictions for a mention `ataxia telangiectasia`. Note that the initial run will take some time to embed the whole dictionary. You can download the dictionary file [here](https://github.com/dmis-lab/BioSyn#datasets).
 
 ```bash
-MODEL=biosyn-ncbi-disease
-MODEL_DIR=./tmp/${MODEL}
+MODEL_NAME_OR_PATH=dmis-lab/biosyn-biobert-ncbi-disease
 DATA_DIR=./datasets/ncbi-disease
 
 python inference.py \
-    --model_dir ${MODEL_DIR} \
+    --model_name_or_path ${MODEL_NAME_OR_PATH} \
     --dictionary_path ${DATA_DIR}/test_dictionary.txt \
     --use_cuda \
     --mention "ataxia telangiectasia" \
@@ -164,11 +164,11 @@ python inference.py \
 {
   "mention": "ataxia telangiectasia", 
   "predictions": [
-    {"name": "ataxia telangiectasia", "id": "D001260|208900"}, 
+    {"name": "ataxia telangiectasia", "id": "D001260|208900"},
     {"name": "ataxia telangiectasia syndrome", "id": "D001260|208900"}, 
-    {"name": "ataxia telangiectasia variant", "id": "C566865"}, 
-    {"name": "syndrome ataxia telangiectasia", "id": "D001260|208900"}, 
-    {"name": "telangiectasia", "id": "D013684"}
+    {"name": "telangiectasia", "id": "D013684"}, 
+    {"name": "telangiectasias", "id": "D013684"}, 
+    {"name": "ataxia telangiectasia variant", "id": "C566865"}
   ]
 }
 ```
@@ -177,12 +177,11 @@ python inference.py \
 The example below gives an embedding of a mention `ataxia telangiectasia`.
 
 ```bash
-MODEL=biosyn-ncbi-disease
-MODEL_DIR=./tmp/${MODEL}
+MODEL_NAME_OR_PATH=dmis-lab/biosyn-biobert-ncbi-disease
 DATA_DIR=./datasets/ncbi-disease
 
 python inference.py \
-    --model_dir ${MODEL_DIR} \
+    --model_name_or_path ${MODEL_NAME_OR_PATH} \
     --use_cuda \
     --mention "ataxia telangiectasia" \
     --show_embeddings
@@ -192,7 +191,6 @@ python inference.py \
 ```
 {
   "mention": "ataxia telangiectasia", 
-  "mention_sparse_embeds": array([0.05979538, 0., ..., 0., 0.], dtype=float32), 
   "mention_dense_embeds": array([-7.14258850e-02, ..., -4.03847933e-01,],dtype=float32)
 }
 ```
@@ -205,17 +203,13 @@ Web demo is implemented on [Tornado](https://www.tornadoweb.org/) framework.
 If a dictionary is not yet cached, it will take about couple of minutes to create dictionary cache.
 
 ```bash
-MODEL=biosyn-ncbi-disease
-MODEL_DIR=./tmp/${MODEL}
+MODEL_NAME_OR_PATH=dmis-lab/biosyn-biobert-ncbi-disease
 
 python demo.py \
-  --model_dir ${MODEL_DIR} \
+  --model_name_or_path ${MODEL_NAME_OR_PATH} \
   --use_cuda \
   --dictionary_path ./datasets/ncbi-disease/test_dictionary.txt
 ```
-
-You can try our running [demo](http://biosyn.korea.ac.kr) for nomalization of disease named entities.
-
 
 ## Citations
 ```bibtex
