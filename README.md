@@ -135,14 +135,24 @@ Following is an example.
 We provide a simple script that can normalize a biomedical mention or represent the mention into an embedding vector with BioSyn. 
 ### Trained models
 
-|              Model                | Dataset | Acc@1/Acc@5 |
-|:----------------------------------|:--------:|:--------:|:--------:|
-| [biosyn-biobert-ncbi-disease](https://huggingface.co/dmis-lab/biosyn-biobert-ncbi-disease) | NCBI-Disease | 90.5/94.5 |
-| [biosyn-sapbert-ncbi-disease](https://huggingface.co/dmis-lab/biosyn-sapbert-ncbi-disease) | NCBI-Disease | 92.9/96.1 |
-| [biosyn-biobert-bc5cdr-disease](https://huggingface.co/dmis-lab/biosyn-biobert-bc5cdr-disease) | BC5CDR-Disease | 93.3/96.4 |
-| [biosyn-sapbert-bc5cdr-disease](https://huggingface.co/dmis-lab/biosyn-sapbert-bc5cdr-disease) | BC5CDR-Disease | 93.7/96.4 |
-| [biosyn-biobert-bc5cdr-chemical](https://huggingface.co/dmis-lab/biosyn-biobert-bc5cdr-chemical) | BC5CDR-Chemical | 96.5/97.2 |
-| [biosyn-sapbert-bc5cdr-chemical](https://huggingface.co/dmis-lab/biosyn-sapbert-bc5cdr-chemical) | BC5CDR-Chemical | 96.8/98.3 |
+#### NCBI-Disease
+|              Model                | Acc@1/Acc@5 |
+|:----------------------------------|:--------:|
+| [biosyn-biobert-ncbi-disease](https://huggingface.co/dmis-lab/biosyn-biobert-ncbi-disease) | 90.5/94.5 |
+| [biosyn-sapbert-ncbi-disease](https://huggingface.co/dmis-lab/biosyn-sapbert-ncbi-disease) | **92.9**/**96.1** |
+
+#### BC5CDR-Disease
+|              Model                | Acc@1/Acc@5 |
+|:----------------------------------|:--------:|
+| [biosyn-biobert-bc5cdr-disease](https://huggingface.co/dmis-lab/biosyn-biobert-bc5cdr-disease) | 93.3/**96.4** |
+| [biosyn-sapbert-bc5cdr-disease](https://huggingface.co/dmis-lab/biosyn-sapbert-bc5cdr-disease) | **93.7**/**96.4** |
+
+#### BC5CDR-Chemical
+|              Model                | Acc@1/Acc@5 |
+|:----------------------------------|:--------:|
+| [biosyn-biobert-bc5cdr-chemical](https://huggingface.co/dmis-lab/biosyn-biobert-bc5cdr-chemical) | 96.5/97.2 |
+| [biosyn-sapbert-bc5cdr-chemical](https://huggingface.co/dmis-lab/biosyn-sapbert-bc5cdr-chemical) | **96.8**/**98.3** |
+
 ### Predictions (Top 5)
 
 The example below gives the top 5 predictions for a mention `ataxia telangiectasia`. Note that the initial run will take some time to embed the whole dictionary. You can download the dictionary file [here](https://github.com/dmis-lab/BioSyn#datasets).
