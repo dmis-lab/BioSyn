@@ -15,7 +15,7 @@
 We present BioSyn for learning biomedical entity representations. You can train BioSyn with the two main components described in our [paper](https://arxiv.org/abs/2005.00239): 1) synonym marginalization and 2) iterative candidate retrieval. Once you train BioSyn, you can easily normalize any biomedical mentions or represent them into entity embeddings.
 
 ### Updates
-* \[**Oct 24, 2021**\] The sparse representations (i.e., tf-idf) are removed for two reasons. First, using only dense representations makes BioSyn more simple to use(we all know that simple is the best) while the performance is almost the same. Second, it allows the checkpoints to be uploaded in Huggingface hub so that anyone can access to our trained models easily(Please check out [here](#trained-models)). For those who want to reproduce the same results as described in our paper, we leave our previous code in the  branch [biosyn_v1](https://github.com/dmis-lab/BioSyn/tree/biosyn_v1).
+* \[**Oct 24, 2021**\] The sparse representations (i.e., tf-idf) are removed for two reasons. First, using only dense representations makes BioSyn more simple to use while the performance is almost the same. Second, it allows the checkpoints to be uploaded in Huggingface hub so that anyone can access to our trained models easily(Please check out [here](#trained-models)). For those who want to reproduce the same results as described in our paper, we leave our previous code in the  branch [biosyn_v1](https://github.com/dmis-lab/BioSyn/tree/biosyn_v1).
 
 ## Requirements
 ```bash
