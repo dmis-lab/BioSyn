@@ -40,11 +40,20 @@ def check_label(predicted_cui, golden_cui):
     """
     return int(len(set(predicted_cui.split("|")).intersection(set(golden_cui.split("|"))))>0)
 
-def predict_topk(biosyn, eval_dictionary, eval_queries, topk):
+def predict_topk(biosyn, eval_dictionary, eval_queries, topk, score_mode='hybrid'):
+    """
+    Parameters
+    ----------
+    score_mode : str
+        hybrid, dense, sparse
+    """
     encoder = biosyn.get_dense_encoder()
     tokenizer = biosyn.get_dense_tokenizer()
+    sparse_encoder = biosyn.get_sparse_encoder()
+    sparse_weight = biosyn.get_sparse_weight().item() # must be scalar value
     
     # embed dictionary
+    dict_sparse_embeds = biosyn.embed_sparse(names=eval_dictionary[:,0], show_progress=True)
     dict_dense_embeds = biosyn.embed_dense(names=eval_dictionary[:,0], show_progress=True)
     
     queries = []
@@ -54,14 +63,26 @@ def predict_topk(biosyn, eval_dictionary, eval_queries, topk):
         
         dict_mentions = []
         for mention in mentions:
+            mention_sparse_embeds = biosyn.embed_sparse(names=np.array([mention]))
             mention_dense_embeds = biosyn.embed_dense(names=np.array([mention]))
             
             # get score matrix
+            sparse_score_matrix = biosyn.get_score_matrix(
+                query_embeds=mention_sparse_embeds, 
+                dict_embeds=dict_sparse_embeds
+            )
             dense_score_matrix = biosyn.get_score_matrix(
                 query_embeds=mention_dense_embeds, 
                 dict_embeds=dict_dense_embeds
             )
-            score_matrix = dense_score_matrix
+            if score_mode == 'hybrid':
+                score_matrix = sparse_weight * sparse_score_matrix + dense_score_matrix
+            elif score_mode == 'dense':
+                score_matrix = dense_score_matrix
+            elif score_mode == 'sparse':
+                score_matrix = sparse_score_matrix
+            else:
+                raise NotImplementedError()
 
             candidate_idxs = biosyn.retrieve_candidate(
                 score_matrix = score_matrix, 
@@ -90,7 +111,7 @@ def predict_topk(biosyn, eval_dictionary, eval_queries, topk):
 
     return result
 
-def evaluate(biosyn, eval_dictionary, eval_queries, topk):
+def evaluate(biosyn, eval_dictionary, eval_queries, topk, score_mode='hybrid'):
     """
     predict topk and evaluate accuracy
     
@@ -104,13 +125,14 @@ def evaluate(biosyn, eval_dictionary, eval_queries, topk):
         queries to evaluate
     topk : int
         the number of topk predictions
-
+    score_mode : str
+        hybrid, dense, sparse
     Returns
     -------
     result : dict
         accuracy and candidates
     """
-    result = predict_topk(biosyn,eval_dictionary,eval_queries, topk)
+    result = predict_topk(biosyn,eval_dictionary,eval_queries, topk, score_mode)
     result = evaluate_topk_acc(result)
     
     return result

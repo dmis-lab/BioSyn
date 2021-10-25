@@ -75,6 +75,16 @@ class BioSyn(object):
 
         return self.tokenizer
 
+    def get_sparse_encoder(self):
+        assert (self.sparse_encoder is not None)
+        
+        return self.sparse_encoder
+
+    def get_sparse_weight(self):
+        assert (self.sparse_weight is not None)
+        
+        return self.sparse_weight
+
     def save_model(self, path):
         # save dense encoder
         self.encoder.save_pretrained(path)
@@ -129,14 +139,12 @@ class BioSyn(object):
     def get_score_matrix(self, query_embeds, dict_embeds):
         """
         Return score matrix
-
         Parameters
         ----------
         query_embeds : np.array
             2d numpy array of query embeddings
         dict_embeds : np.array
             2d numpy array of query embeddings
-
         Returns
         -------
         score_matrix : np.array
@@ -149,14 +157,12 @@ class BioSyn(object):
     def retrieve_candidate(self, score_matrix, topk):
         """
         Return sorted topk idxes (descending order)
-
         Parameters
         ----------
         score_matrix : np.array
             2d numpy array of scores
         topk : int
             The number of candidates
-
         Returns
         -------
         topk_idxs : np.array
@@ -176,6 +182,36 @@ class BioSyn(object):
         topk_idxs = indexing_2d(topk_idxs, topk_argidxs)
 
         return topk_idxs
+
+    def embed_sparse(self, names, show_progress=False):
+        """
+        Embedding data into sparse representations
+        Parameters
+        ----------
+        names : np.array
+            An array of names
+        Returns
+        -------
+        sparse_embeds : np.array
+            A list of sparse embeddings
+        """
+        batch_size=1024
+        sparse_embeds = []
+        
+        if show_progress:
+            iterations = tqdm(range(0, len(names), batch_size))
+        else:
+            iterations = range(0, len(names), batch_size)
+        
+        for start in iterations:
+            end = min(start + batch_size, len(names))
+            batch = names[start:end]
+            batch_sparse_embeds = self.sparse_encoder(batch)
+            batch_sparse_embeds = batch_sparse_embeds.numpy()
+            sparse_embeds.append(batch_sparse_embeds)
+        sparse_embeds = np.concatenate(sparse_embeds, axis=0)
+
+        return sparse_embeds
 
     def embed_dense(self, names, show_progress=False):
         """
