@@ -103,7 +103,7 @@ def load_dictionary(dictionary_path):
     
     return dictionary.data
     
-def load_queries(data_dir, filter_composite, filter_duplicate):
+def load_queries(data_dir, filter_composite, filter_duplicate, filter_cuiless):
     """
     load query data
     
@@ -115,11 +115,14 @@ def load_queries(data_dir, filter_composite, filter_duplicate):
         filter composite mentions
     filter_duplicate : bool
         filter duplicate queries
+    filter_cuiless : bool
+        filter samples with cuiless
     """
     dataset = QueryDataset(
         data_dir=data_dir,
         filter_composite=filter_composite,
-        filter_duplicate=filter_duplicate
+        filter_duplicate=filter_duplicate,
+        filter_cuiless=filter_cuiless
     )
     
     return dataset.data
@@ -157,7 +160,8 @@ def main(args):
     train_queries = load_queries(
         data_dir = args.train_dir, 
         filter_composite=True,
-        filter_duplicate=True
+        filter_duplicate=True,
+        filter_cuiless=True
     )
 
     if args.draft:

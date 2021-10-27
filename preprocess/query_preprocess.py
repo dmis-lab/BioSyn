@@ -103,7 +103,7 @@ def load_cui_set(path):
     return cui_set
 
 
-def filter_cuiless(concept, cui_set):
+def handle_cuiless(concept, cui_set, remove_cuiless):
     result = []
     for pmid, span, mention_type, mention, cui in concept:
         cui = cui.replace('OMIM:', '').replace('MESH:', '')
@@ -113,6 +113,8 @@ def filter_cuiless(concept, cui_set):
         cui_less_set = concept_cui_set - cui_set
         if len(cui_less_set) == 0:
             result.append([pmid, span, mention_type, mention, cui])
+        elif not remove_cuiless:
+            result.append([pmid, span, mention_type, mention, '-1'])
     return result
 
 def composite_resolve(mention, cui):
@@ -223,14 +225,14 @@ def parse_args():
 
 def main(args):
     input_dir, output_dir = Path(args.input_dir), Path(args.output_dir)
-    dataset_name = input_dir.parent.stem
     output_dir.mkdir(exist_ok=True)
     input_files = input_dir.iterdir()
     input_files = filter(lambda path: path.suffix == '.concept', input_files)
     input_files = map(lambda path: path.stem, input_files)
     input_files = sorted(input_files)
 
-    cui_set = None
+    dict_path = args.dictionary_path
+    cui_set = load_cui_set(dict_path)
 
     abbr_resolver = Abbr_resolver(
         ab3p_path=args.ab3p_path
@@ -261,12 +263,8 @@ def main(args):
         # apply basic preprocess
         concept = apply_basic_preprocess(concept, text_preprocessor)
         
-        # remove cuiless
-        if args.remove_cuiless:
-            if cui_set is None:
-                dict_path = args.dictionary_path
-                cui_set = load_cui_set(dict_path)
-            concept = filter_cuiless(concept, cui_set)
+        # handle cuiless
+        concept = handle_cuiless(concept, cui_set, args.remove_cuiless)
         num_queries += len(concept)
         write_concept(output_path, concept)
     

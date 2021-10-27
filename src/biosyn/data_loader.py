@@ -12,7 +12,8 @@ class QueryDataset(Dataset):
 
     def __init__(self, data_dir, 
                 filter_composite=False,
-                filter_duplicate=False
+                filter_duplicate=False,
+                filter_cuiless=False
         ):
         """       
         Parameters
@@ -26,17 +27,18 @@ class QueryDataset(Dataset):
         draft : bool
             use subset of queries for debugging (default False)     
         """
-        LOGGER.info("QueryDataset! data_dir={} filter_composite={} filter_duplicate={}".format(
-            data_dir, filter_composite, filter_duplicate
+        LOGGER.info("QueryDataset! data_dir={} filter_composite={} filter_duplicate={} filter_cuiless={}".format(
+            data_dir, filter_composite, filter_duplicate, filter_cuiless
         ))
         
         self.data = self.load_data(
             data_dir=data_dir,
             filter_composite=filter_composite,
-            filter_duplicate=filter_duplicate
+            filter_duplicate=filter_duplicate,
+            filter_cuiless=filter_cuiless
         )
         
-    def load_data(self, data_dir, filter_composite, filter_duplicate):
+    def load_data(self, data_dir, filter_composite, filter_duplicate, filter_cuiless):
         """       
         Parameters
         ----------
@@ -46,7 +48,8 @@ class QueryDataset(Dataset):
             filter composite mentions
         filter_duplicate : bool
             filter duplicate queries  
-        
+        filter_cuiless : bool
+            remove samples with cuiless 
         Returns
         -------
         data : np.array 
@@ -65,10 +68,14 @@ class QueryDataset(Dataset):
                 cui = concept[4].strip()
                 is_composite = (cui.replace("+","|").count("|") > 0)
 
+                # filter composite cui
                 if filter_composite and is_composite:
                     continue
-                else:
-                    data.append((mention,cui))
+                # filter cuiless
+                if filter_cuiless and cui == '-1':
+                    continue
+
+                data.append((mention,cui))
         
         if filter_duplicate:
             data = list(dict.fromkeys(data))
