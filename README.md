@@ -48,17 +48,17 @@ Note that we use development (dev) set to search the hyperparameters, and train 
 The following example fine-tunes our model on NCBI-Disease dataset (train+dev) with BioBERTv1.1. 
 
 ```bash
-OUTPUT_MODEL=biosyn-ncbi-disease
-MODEL_NAME_OR_PATH=dmis-lab/biobert-base-cased-v1.1
+OUTPUT_MODEL=biosyn-sapbert-nlm-chem
+MODEL_NAME_OR_PATH=cambridgeltl/SapBERT-from-PubMedBERT-fulltext 
 OUTPUT_DIR=./tmp/${OUTPUT_MODEL}
-DATA_DIR=./datasets/ncbi-disease
+DATA_DIR=./datasets/nlm-chem
 
 python train.py \
     --model_name_or_path ${MODEL_NAME_OR_PATH} \
     --train_dictionary_path ${DATA_DIR}/train_dictionary.txt \
-    --train_dir ${DATA_DIR}/processed_traindev \
-    --eval_dictionary_path ${DATA_DIR}/test_dictionary.txt \
-    --eval_dir ${DATA_DIR}/processed_test \
+    --train_dir ${DATA_DIR}/processed_train \
+    --eval_dictionary_path ${DATA_DIR}/dev_dictionary.txt \
+    --eval_dir ${DATA_DIR}/processed_dev \
     --output_dir ${OUTPUT_DIR} \
     --use_cuda \
     --topk 20 \
@@ -67,7 +67,7 @@ python train.py \
     --initial_sparse_weight 0\
     --learning_rate 1e-5 \
     --max_length 25 \
-    --dense_ratio 1.0 \
+    --dense_ratio 0.5 \
     --do_cuiless \
     --do_eval
 ```

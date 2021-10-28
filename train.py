@@ -303,20 +303,14 @@ def main(args):
                 eval_dictionary=eval_dictionary,
                 eval_queries=eval_queries,
                 topk=args.topk,
-                score_mode="dense"
+                score_mode="hybrid",
+                metric='f1'
             )
-            if best_performance < result_evalset['acc1']:
-                best_performance = result_evalset['acc1']
+            if best_performance < result_evalset['f1']:
+                best_performance = result_evalset['f1']
                 # save model best epoch
                 biosyn.save_model(args.output_dir)
-                output_file = os.path.join(args.output_dir,"predictions_eval.json")
-                with open(output_file, 'w') as f:
-                    json.dump(result_evalset, f, indent=2)
                 print(f"best_performance={best_performance}")
-
-        # # save model last epoch
-        # if epoch == args.epoch:
-        #     biosyn.save_model(args.output_dir)
 
     end = time.time()
     training_time = end-start

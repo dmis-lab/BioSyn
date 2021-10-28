@@ -3,6 +3,7 @@ import json
 import numpy as np
 import pdb
 from tqdm import tqdm
+from bc7t2_evaluate_custom import bc7t2_evaluate
 
 def check_k(queries):
     return len(queries[0]['mentions'][0]['candidates'])
@@ -30,6 +31,65 @@ def evaluate_topk_acc(data):
         
         data['acc{}'.format(i+1)] = hit/len(queries)
 
+    return data
+
+def save_data_to_json(data, prediction_path):
+    output = {"documents":[]}
+
+    pmid2predictions = {}
+    for query in tqdm(data['queries']):
+        pred_cuis = []
+        for mention in query['mentions']:
+            pmid = mention['pmid']
+            pred_cui = mention['candidates'][0]['cui']
+            pred_cuis.append(pred_cui)
+        pred_cuis = ",".join(pred_cuis)
+
+        if pmid not in pmid2predictions:
+            pmid2predictions[pmid] = []
+        
+        pmid2predictions[pmid].append(pred_cuis)
+
+    for pmid, predictions in pmid2predictions.items():
+        annotations = []
+        for prediction in predictions:
+            annotations.append({
+              "infons": {
+                "type": "Chemical",
+                "identifier": prediction
+              }
+            })
+
+        passages = [
+            {
+                "offset": 0,
+                "text": "what",
+                "annotations":annotations
+            }
+        ]
+
+        output['documents'].append({
+            'id': pmid,
+            'passages': passages
+        })
+
+    with open(prediction_path, 'w') as f:
+        json.dump(output, f, indent=2)
+
+def evaluate_topk_f1(data):
+    """
+    evaluate f1@1~f1@k
+    """
+    reference_path = 'datasets/raw/NLMChem/BC7T2-NLMChem-corpus-dev.BioC.json'
+    prediction_path = 'BC7T2-NLMChem-corpus-dev-pred.BioC.json'
+    save_data_to_json(data, prediction_path)
+    
+    p, r, f = bc7t2_evaluate(
+        reference_path=reference_path,
+        prediction_path=prediction_path
+    )
+    
+    data['f1'] = f
     return data
 
 def check_label(predicted_cui, golden_cui):
@@ -113,7 +173,7 @@ def predict_topk(biosyn, eval_dictionary, eval_queries, topk, score_mode='hybrid
 
     return result
 
-def evaluate(biosyn, eval_dictionary, eval_queries, topk, score_mode='hybrid'):
+def evaluate(biosyn, eval_dictionary, eval_queries, topk, score_mode='hybrid', metric='accuracy'):
     """
     predict topk and evaluate accuracy
     
@@ -136,6 +196,10 @@ def evaluate(biosyn, eval_dictionary, eval_queries, topk, score_mode='hybrid'):
         accuracy and candidates
     """
     result = predict_topk(biosyn,eval_dictionary,eval_queries, topk, score_mode)
-    result = evaluate_topk_acc(result)
+    if metric == 'f1':
+        result = evaluate_topk_f1(result)
+    # accuracy
+    else:
+        result = evaluate_topk_acc(result)
     
     return result
