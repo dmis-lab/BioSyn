@@ -174,11 +174,11 @@ python inference.py \
 {
   "mention": "ataxia telangiectasia", 
   "predictions": [
-    {"name": "ataxia telangiectasia", "id": "D001260|208900"}, 
+    {"name": "ataxia telangiectasia", "id": "D001260|208900"},
     {"name": "ataxia telangiectasia syndrome", "id": "D001260|208900"}, 
-    {"name": "ataxia telangiectasia variant", "id": "C566865"}, 
-    {"name": "syndrome ataxia telangiectasia", "id": "D001260|208900"}, 
-    {"name": "telangiectasia", "id": "D013684"}
+    {"name": "telangiectasia", "id": "D013684"}, 
+    {"name": "telangiectasias", "id": "D013684"}, 
+    {"name": "ataxia telangiectasia variant", "id": "C566865"}
   ]
 }
 ```
