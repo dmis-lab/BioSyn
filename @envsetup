@@ -43,3 +43,5 @@ conda activate ademesdev
 ##conda deactivate
 
 install dependencies from requirements.txt
+
+git checkout -b demo
