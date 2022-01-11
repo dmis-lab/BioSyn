@@ -45,3 +45,4 @@ conda activate ademesdev
 install dependencies from requirements.txt
 
 git checkout -b demo
+git push --set-upstream origin demo
