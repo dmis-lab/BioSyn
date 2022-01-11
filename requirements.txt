@@ -1,0 +1,3 @@
+conda install numpy tqdm scikit-learn
+conda install pytorch=1.8.0 cudatoolkit=10.2 -c pytorch
+pip install transformers==4.11.3
