@@ -33,9 +33,9 @@ Datasets consist of queries (train, dev, test, and traindev), and dictionaries (
 
 Note that we use development (dev) set to search the hyperparameters, and train on traindev (train+dev) set to report the final performance.
 
-- [ncbi-disease](https://drive.google.com/open?id=1nqTQba0IcJiXUal7fx3s-KUFRCfMPpaj)
-- [bc5cdr-disease](https://drive.google.com/open?id=1nvNYdfGrlZjya4RlhRu-IQJjRJzQcpyr)
-- [bc5cdr-chemical](https://drive.google.com/open?id=1nsWIWmds5p7UZIeqrKVnhNTaBQAbqVYk)
+- [ncbi-disease](https://drive.google.com/file/d/1mmV7p33E1iF32RzAET3MsLHPz1PiF9vc/view?usp=sharing)
+- [bc5cdr-disease](https://drive.google.com/file/d/1moAqukbrdpAPseJc3UELEY6NLcNk22AA/view?usp=sharing)
+- [bc5cdr-chemical](https://drive.google.com/file/d/1mgQhjAjpqWLCkoxIreLnNBYcvjdsSoGi/view?usp=sharing)
 
 `TAC2017ADR` dataset cannot be shared because of the license issue. Please visit the [website](https://bionlp.nlm.nih.gov/tac2017adversereactions/) or see [here](https://github.com/dmis-lab/BioSyn/tree/master/preprocess) for pre-processing scripts.
 
