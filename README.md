@@ -15,6 +15,7 @@
 We present BioSyn for learning biomedical entity representations. You can train BioSyn with the two main components described in our [paper](https://arxiv.org/abs/2005.00239): 1) synonym marginalization and 2) iterative candidate retrieval. Once you train BioSyn, you can easily normalize any biomedical mentions or represent them into entity embeddings.
 
 ### Updates
+* \[**Mar 17, 2022**\] Checkpoints of BioSyn for normalizing [gene type](https://github.com/dmis-lab/BioSyn/edit/master/README.md#bc2gn) has been released. The BC2GN data used for the gene type was pre-processed by [Tutubalina et al., 2020](https://github.com/insilicomedicine/Fair-Evaluation-BERT).
 * \[**Oct 25, 2021**\] Trained models are uploaded in Huggingface Hub(Please check out [here](#trained-models)). Other than BioBERT, we also train our model using another pre-trained model [SapBERT](https://github.com/cambridgeltl/sapbert), and obtain better performance than as described in our paper.
 
 ## Requirements
@@ -136,9 +137,9 @@ We provide a simple script that can normalize a biomedical mention or represent 
 ### Trained models
 
 #### NCBI-Disease
-|              Model                | Acc@1/Acc@5 |
-|:----------------------------------|:--------:|
-| [biosyn-biobert-ncbi-disease](https://huggingface.co/dmis-lab/biosyn-biobert-ncbi-disease) | 91.1/93.9 |
+|              Model                | Acc@1/Acc@5 | 
+|:----------------------------------|:--------:|  
+| [biosyn-biobert-ncbi-disease](https://huggingface.co/dmis-lab/biosyn-biobert-ncbi-disease) | 91.1/93.9 | 
 | [biosyn-sapbert-ncbi-disease](https://huggingface.co/dmis-lab/biosyn-sapbert-ncbi-disease) | **92.4**/**95.8** |
 
 #### BC5CDR-Disease
@@ -148,10 +149,16 @@ We provide a simple script that can normalize a biomedical mention or represent 
 | [biosyn-sapbert-bc5cdr-disease](https://huggingface.co/dmis-lab/biosyn-sapbert-bc5cdr-disease) | **93.5**/**96.4** |
 
 #### BC5CDR-Chemical
-|              Model                | Acc@1/Acc@5 |
+|              Model                | Acc@1/Acc@5 | 
 |:----------------------------------|:--------:|
 | [biosyn-biobert-bc5cdr-chemical](https://huggingface.co/dmis-lab/biosyn-biobert-bc5cdr-chemical) | **96.6**/97.2 |
 | [biosyn-sapbert-bc5cdr-chemical](https://huggingface.co/dmis-lab/biosyn-sapbert-bc5cdr-chemical) | **96.6**/**98.3** |
+
+#### BC2GN-Gene
+|              Model                | Acc@1/Acc@5 |
+|:----------------------------------|:--------:| 
+| [biosyn-biobert-bc2gn](https://huggingface.co/dmis-lab/biosyn-biobert-bc2gn) | 90.6/95.6 |
+| [biosyn-sapbert-bc2gn](https://huggingface.co/dmis-lab/biosyn-sapbert-bc2gn) | 91.3/96.3  | 
 
 ### Predictions (Top 5)
 
