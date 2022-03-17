@@ -15,7 +15,7 @@
 We present BioSyn for learning biomedical entity representations. You can train BioSyn with the two main components described in our [paper](https://arxiv.org/abs/2005.00239): 1) synonym marginalization and 2) iterative candidate retrieval. Once you train BioSyn, you can easily normalize any biomedical mentions or represent them into entity embeddings.
 
 ### Updates
-* \[**Mar 17, 2022**\] Checkpoints of BioSyn for normalizing [gene type](https://github.com/dmis-lab/BioSyn/edit/master/README.md#bc2gn) has been released. The BC2GN data used for the gene type was pre-processed by [Tutubalina et al., 2020](https://github.com/insilicomedicine/Fair-Evaluation-BERT).
+* \[**Mar 17, 2022**\] Checkpoints of BioSyn for normalizing [gene type](https://github.com/dmis-lab/BioSyn/edit/master/README.md#bc2gn) are released. The BC2GN data used for the gene type has been pre-processed by [Tutubalina et al., 2020](https://github.com/insilicomedicine/Fair-Evaluation-BERT).
 * \[**Oct 25, 2021**\] Trained models are uploaded in Huggingface Hub(Please check out [here](#trained-models)). Other than BioBERT, we also train our model using another pre-trained model [SapBERT](https://github.com/cambridgeltl/sapbert), and obtain better performance than as described in our paper.
 
 ## Requirements
