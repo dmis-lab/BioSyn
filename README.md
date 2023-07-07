@@ -58,8 +58,10 @@ CUDA_VISIBLE_DEVICES=1 python train.py \
     --topk 20 \
     --epoch 10 \
     --train_batch_size 16\
+    --initial_sparse_weight 0\
     --learning_rate 1e-5 \
-    --max_length 25
+    --max_length 25 \
+    --dense_ratio 0.5
 ```
 
 Note that you can train the model on `processed_train` and evaluate it on `processed_dev` when you want to search for the hyperparameters. (the argument `--save_checkpoint_all` can be helpful. )
@@ -81,7 +83,8 @@ python eval.py \
     --use_cuda \
     --topk 20 \
     --max_length 25 \
-    --save_predictions
+    --save_predictions \
+    --score_mode hybrid
 ```
 
 ### Result
